@@ -15,10 +15,10 @@ MainWindow::MainWindow(QWidget *parent)
     undoView->setWindowTitle(tr("Command List"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
 
-    QDockWidget *dock = new QDockWidget(this);
-    addDockWidget(Qt::RightDockWidgetArea, dock);
+    // QDockWidget *dock = new QDockWidget(this);
+    // addDockWidget(Qt::RightDockWidgetArea, dock);
 
-    dock->setWidget(undoView);
+    // dock->setWidget(undoView);
 
     m_view = createGraphicsView();
     setCentralWidget(m_view);
@@ -290,25 +290,25 @@ void MainWindow::createToolbars()
     drawToolBar->addAction(rotateAct);
 
     // create align toolbar
-    alignToolBar = addToolBar(tr("align"));
-    alignToolBar->setIconSize(QSize(24,24));
-    alignToolBar->addAction(upAct);
-    alignToolBar->addAction(downAct);
-    alignToolBar->addAction(rightAct);
-    alignToolBar->addAction(leftAct);
-    alignToolBar->addAction(vCenterAct);
-    alignToolBar->addAction(hCenterAct);
+    // alignToolBar = addToolBar(tr("align"));
+    // alignToolBar->setIconSize(QSize(24,24));
+    // alignToolBar->addAction(upAct);
+    // alignToolBar->addAction(downAct);
+    // alignToolBar->addAction(rightAct);
+    // alignToolBar->addAction(leftAct);
+    // alignToolBar->addAction(vCenterAct);
+    // alignToolBar->addAction(hCenterAct);
 
-    alignToolBar->addAction(horzAct);
-    alignToolBar->addAction(vertAct);
-    alignToolBar->addAction(heightAct);
-    alignToolBar->addAction(widthAct);
-    alignToolBar->addAction(allAct);
+    // alignToolBar->addAction(horzAct);
+    // alignToolBar->addAction(vertAct);
+    // alignToolBar->addAction(heightAct);
+    // alignToolBar->addAction(widthAct);
+    // alignToolBar->addAction(allAct);
 
-    alignToolBar->addAction(bringToFrontAct);
-    alignToolBar->addAction(sendToBackAct);
-    alignToolBar->addAction(groupAct);
-    alignToolBar->addAction(unGroupAct);
+    // alignToolBar->addAction(bringToFrontAct);
+    // alignToolBar->addAction(sendToBackAct);
+    // alignToolBar->addAction(groupAct);
+    // alignToolBar->addAction(unGroupAct);
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
