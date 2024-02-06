@@ -32,6 +32,27 @@ void DrawView::zoomOut()
     updateRuler();
 }
 
+void DrawView::wheelEvent(QWheelEvent *event)
+{
+    // https://stackoverflow.com/questions/19113532/qgraphicsview-zooming-in-and-out-under-mouse-position-using-mouse-wheel
+    if (event->modifiers() & Qt::ControlModifier) {
+        // zoom
+        const ViewportAnchor anchor = transformationAnchor();
+        setTransformationAnchor(QGraphicsView::AnchorUnderMouse);
+        int angle = event->angleDelta().y();
+        qreal factor;
+        if (angle > 0) {
+            factor = 1.1;
+        } else {
+            factor = 0.9;
+        }
+        scale(factor, factor);
+        setTransformationAnchor(anchor);
+    } else {
+        QGraphicsView::wheelEvent(event);
+    }
+}
+
 void DrawView::newFile()
 {
     static int sequenceNumber = 1;

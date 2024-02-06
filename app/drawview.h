@@ -29,6 +29,8 @@ public:
 signals:
     void positionChanged(int x , int y );
 protected:
+    void wheelEvent(QWheelEvent *event);
+
     void closeEvent(QCloseEvent *event) Q_DECL_OVERRIDE;
 
     void mouseMoveEvent(QMouseEvent * event) Q_DECL_OVERRIDE;

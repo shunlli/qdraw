@@ -140,7 +140,10 @@ void SelectTool::mousePressEvent(QGraphicsSceneMouseEvent *event, DrawScene *sce
         selectMode = netSelect;
         if ( scene->view() ){
             QGraphicsView * view = scene->view();
-            view->setDragMode(QGraphicsView::RubberBandDrag);
+                view->setDragMode(QGraphicsView::RubberBandDrag);
+            if (event->modifiers() & Qt::ControlModifier) {
+                view->setDragMode(QGraphicsView::ScrollHandDrag);
+            }
         }
 #if 0
         if ( selLayer ){
