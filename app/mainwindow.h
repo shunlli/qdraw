@@ -88,7 +88,6 @@ private:
     void createMenus();
     void createToolbars();
     void createPropertyEditor();
-    void createToolBox();
 
     DrawView *activeMdiChild();
     QMdiSubWindow *findMdiChild(const QString &fileName);
@@ -101,8 +100,6 @@ private:
 
     // update ui
     QTimer      m_timer;
-    // toolbox
-    QToolBox *toolBox;
     // edit toolbar;
     QToolBar * editToolBar;
     // align toolbar
@@ -163,8 +160,6 @@ private:
     QAction *separatorAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
-
-    QListWidget    *listView;
 
     QUndoStack *undoStack;
     QUndoView *undoView;
