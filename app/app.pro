@@ -19,8 +19,6 @@ SOURCES += main.cpp\
     drawscene.cpp \
     drawtool.cpp \
     sizehandle.cpp \
-    objectcontroller.cpp \
-    customproperty.cpp \
     rulebar.cpp \
     drawview.cpp \
     commands.cpp \
@@ -31,8 +29,6 @@ HEADERS  += mainwindow.h \
     drawscene.h \
     drawtool.h \
     sizehandle.h \
-    objectcontroller.h \
-    customproperty.h \
     rulebar.h \
     drawview.h \
     commands.h \

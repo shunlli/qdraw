@@ -1,12 +1,9 @@
 #include "mainwindow.h"
 #include <QtWidgets>
-#include "qtvariantproperty.h"
-#include "qttreepropertybrowser.h"
 #include <QDockWidget>
 #include <QGraphicsItem>
 #include <QMdiSubWindow>
 #include <QUndoStack>
-#include "customproperty.h"
 #include "drawobj.h"
 #include "commands.h"
 
@@ -41,7 +38,6 @@ MainWindow::MainWindow(QWidget *parent)
     createMenus();
     createToolbars();
     createToolBox();
-    createPropertyEditor();
 
     newFile();
     mdiArea->tileSubWindows();
@@ -54,7 +50,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(QApplication::clipboard(),SIGNAL(dataChanged()),this,SLOT(dataChanged()));
     connect(&m_timer,SIGNAL(timeout()),this,SLOT(updateActions()));
     m_timer.start(500);
-    theControlledObject = NULL;
 
 }
 
@@ -398,15 +393,6 @@ void MainWindow::createToolbars()
     alignToolBar->addAction(unGroupAct);
 }
 
-void MainWindow::createPropertyEditor()
-{
-    dockProperty = new QDockWidget(this);
-    addDockWidget(Qt::RightDockWidgetArea, dockProperty);
-
-    propertyEditor = new ObjectController(this);
-    dockProperty->setWidget(propertyEditor);
-}
-
 void MainWindow::updateMenus()
 {
     bool hasMdiChild = (activeMdiChild() != 0);
@@ -654,17 +640,8 @@ void MainWindow::itemSelected()
          && scene->selectedItems().first()->isSelected())
     {
         QGraphicsItem *item = scene->selectedItems().first();
-
-        theControlledObject = dynamic_cast<QObject*>(item);
-        propertyEditor->setObject(theControlledObject);
-
-
     }
-    return ;
-    if ( theControlledObject )
-    {
-        propertyEditor->setObject(theControlledObject);
-    }
+    return;
 }
 
 void MainWindow::itemMoved(QGraphicsItem *item, const QPointF &oldPosition)
@@ -847,24 +824,6 @@ void MainWindow::on_unGroup_triggered()
 
 void MainWindow::on_func_test_triggered()
 {
-
-       QtPenPropertyManager *penPropertyManager = new QtPenPropertyManager();
-       QtProperty * property = penPropertyManager->addProperty("pen");
-
-       QtTreePropertyBrowser *editor = new QtTreePropertyBrowser();
-       editor->setFactoryForManager(penPropertyManager->subIntPropertyManager(),new QtSpinBoxFactory());
-       editor->setFactoryForManager(penPropertyManager->subEnumPropertyManager(),new QtEnumEditorFactory());
-       editor->addProperty(property);
-
-       QPen pen;
-       pen.setWidth(10);
-       pen.setCapStyle(Qt::RoundCap);
-       pen.setJoinStyle(Qt::SvgMiterJoin);
-       penPropertyManager->setValue(property,pen);
-
-       editor->show();
-
-
 /*
         QtGradientEditor * editor = new QtGradientEditor(NULL);
         editor->show();

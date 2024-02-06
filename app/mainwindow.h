@@ -7,7 +7,6 @@
 #include <QGraphicsScene>
 #include <QTimer>
 #include "drawscene.h"
-#include "objectcontroller.h"
 #include "drawview.h"
 
 QT_BEGIN_NAMESPACE
@@ -164,11 +163,6 @@ private:
     QAction *separatorAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
-
-    //property editor
-    QDockWidget *dockProperty;
-    ObjectController *propertyEditor;
-    QObject *theControlledObject;
 
     QListWidget    *listView;
 
