@@ -20,26 +20,17 @@ MainWindow::MainWindow(QWidget *parent)
 
     dock->setWidget(undoView);
 
-    mdiArea = new QMdiArea;
-    mdiArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    mdiArea->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
-    setCentralWidget(mdiArea);
+    m_view = createGraphicsView();
+    setCentralWidget(m_view);
 
     setWindowTitle(tr("Qt Drawing"));
     setUnifiedTitleAndToolBarOnMac(true);
-
-    connect(mdiArea, SIGNAL(subWindowActivated(QMdiSubWindow*)),
-            this, SLOT(updateMenus()));
-    windowMapper = new QSignalMapper(this);
-    connect(windowMapper, SIGNAL(mapped(QWidget*)),
-            this, SLOT(setActiveSubWindow(QWidget*)));
 
     createActions();
     createMenus();
     createToolbars();
 
-    newFile();
-    mdiArea->tileSubWindows();
+    setCurrentFile(QString());
  /*
     m_posInfo = new QLabel(tr("x,y"));
     m_posInfo->setMinimumSize(m_posInfo->sizeHint());
@@ -57,28 +48,8 @@ MainWindow::~MainWindow()
 
 }
 
-DrawView *MainWindow::activeMdiChild()
-{
-    if (QMdiSubWindow *activeSubWindow = mdiArea->activeSubWindow())
-        return qobject_cast<DrawView *>(activeSubWindow->widget());
-    return 0;
-}
-
-QMdiSubWindow *MainWindow::findMdiChild(const QString &fileName)
-{
-    QString canonicalFilePath = QFileInfo(fileName).canonicalFilePath();
-
-    foreach (QMdiSubWindow *window, mdiArea->subWindowList()) {
-        DrawView *mdiChild = qobject_cast<DrawView *>(window->widget());
-        if (mdiChild->currentFile() == canonicalFilePath)
-            return window;
-    }
-    return 0;
-}
-
 void MainWindow::createActions()
 {
-
     newAct = new QAction(tr("&New"), this);
     newAct->setShortcuts(QKeySequence::New);
     newAct->setStatusTip(tr("Create a new file"));
@@ -94,41 +65,15 @@ void MainWindow::createActions()
     saveAct->setStatusTip(tr("Save the document to disk"));
     connect(saveAct, SIGNAL(triggered()), this, SLOT(save()));
 
+    saveAsAct = new QAction(tr("Save As"), this);
+    saveAsAct->setShortcuts(QKeySequence::Save);
+    saveAsAct->setStatusTip(tr("Save file"));
+    connect(saveAsAct, SIGNAL(triggered()), this, SLOT(saveAs()));
+
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcuts(QKeySequence::Quit);
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
-
-    closeAct = new QAction(tr("Cl&ose"), this);
-    closeAct->setStatusTip(tr("Close the active window"));
-    connect(closeAct, SIGNAL(triggered()),
-            mdiArea, SLOT(closeActiveSubWindow()));
-
-    closeAllAct = new QAction(tr("Close &All"), this);
-    closeAllAct->setStatusTip(tr("Close all the windows"));
-    connect(closeAllAct, SIGNAL(triggered()),
-            mdiArea, SLOT(closeAllSubWindows()));
-
-    tileAct = new QAction(tr("&Tile"), this);
-    tileAct->setStatusTip(tr("Tile the windows"));
-    connect(tileAct, SIGNAL(triggered()), mdiArea, SLOT(tileSubWindows()));
-
-    cascadeAct = new QAction(tr("&Cascade"), this);
-    cascadeAct->setStatusTip(tr("Cascade the windows"));
-    connect(cascadeAct, SIGNAL(triggered()), mdiArea, SLOT(cascadeSubWindows()));
-
-    nextAct = new QAction(tr("Ne&xt"), this);
-    nextAct->setShortcuts(QKeySequence::NextChild);
-    nextAct->setStatusTip(tr("Move the focus to the next window"));
-    connect(nextAct, SIGNAL(triggered()),
-            mdiArea, SLOT(activateNextSubWindow()));
-
-    previousAct = new QAction(tr("Pre&vious"), this);
-    previousAct->setShortcuts(QKeySequence::PreviousChild);
-    previousAct->setStatusTip(tr("Move the focus to the previous "
-                                 "window"));
-    connect(previousAct, SIGNAL(triggered()),
-            mdiArea, SLOT(activatePreviousSubWindow()));
 
     separatorAct = new QAction(this);
     separatorAct->setSeparator(true);
@@ -266,6 +211,7 @@ void MainWindow::createMenus()
     fileMenu->addAction(newAct);
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAct);
+    fileMenu->addAction(saveAsAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
@@ -305,10 +251,6 @@ void MainWindow::createMenus()
     alignMenu->addAction(widthAct);
     alignMenu->addAction(allAct);
     toolMenu->addMenu(alignMenu);
-
-    windowMenu = menuBar()->addMenu(tr("&Window"));
-    updateWindowMenu();
-    connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
 
     menuBar()->addSeparator();
 
@@ -369,115 +311,179 @@ void MainWindow::createToolbars()
     alignToolBar->addAction(unGroupAct);
 }
 
-void MainWindow::updateMenus()
+void MainWindow::setCurrentFile(const QString &fileName)
 {
-    bool hasMdiChild = (activeMdiChild() != 0);
-    saveAct->setEnabled(hasMdiChild);
-    if (!hasMdiChild){
-        undoStack->clear();
-    }
-    closeAct->setEnabled(hasMdiChild);
-    closeAllAct->setEnabled(hasMdiChild);
-    tileAct->setEnabled(hasMdiChild);
-    cascadeAct->setEnabled(hasMdiChild);
-    nextAct->setEnabled(hasMdiChild);
-    previousAct->setEnabled(hasMdiChild);
-    separatorAct->setVisible(hasMdiChild);
+    m_currentFile = fileName;
+    setWindowModified(false);
 
-    bool hasSelection = (activeMdiChild() &&
-                         activeMdiChild()->scene()->selectedItems().count()>0);
+    QString shownName = m_currentFile;
+    if (m_currentFile.isEmpty())
+        shownName = "untitled.xml";
+    setWindowFilePath(shownName);
 
-    cutAct->setEnabled(hasSelection);
-    copyAct->setEnabled(hasSelection);
-}
-
-void MainWindow::updateWindowMenu()
-{
-    windowMenu->clear();
-    windowMenu->addAction(closeAct);
-    windowMenu->addAction(closeAllAct);
-    windowMenu->addSeparator();
-    windowMenu->addAction(tileAct);
-    windowMenu->addAction(cascadeAct);
-    windowMenu->addSeparator();
-    windowMenu->addAction(nextAct);
-    windowMenu->addAction(previousAct);
-    windowMenu->addAction(separatorAct);
-
-    QList<QMdiSubWindow *> windows = mdiArea->subWindowList();
-    separatorAct->setVisible(!windows.isEmpty());
-
-    for (int i = 0; i < windows.size(); ++i) {
-        DrawView *child = qobject_cast<DrawView *>(windows.at(i)->widget());
-
-        QString text;
-        if (i < 9) {
-            text = tr("&%1 %2").arg(i + 1)
-                               .arg(child->userFriendlyCurrentFile());
-        } else {
-            text = tr("%1 %2").arg(i + 1)
-                              .arg(child->userFriendlyCurrentFile());
-        }
-        QAction *action  = windowMenu->addAction(text);
-        action->setCheckable(true);
-        action ->setChecked(child == activeMdiChild());
-        connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
-        windowMapper->setMapping(action, windows.at(i));
-    }
+    if (m_currentFile.isEmpty())
+        return;
 }
 
 void MainWindow::newFile()
 {
-    DrawView *child = createMdiChild();
-    child->newFile();
-    child->show();
+    if (maybeSave()) {
+        m_changed = false;
+        setCurrentFile(QString());
+        m_view->newFile();
+        // TODO: refresh view and data
+        undoStack->clear();
+        m_view->scene()->clear();
+        m_view->setModified(false);
+    }
 }
 
 void MainWindow::open()
 {
+    if (!maybeSave()) {
+        return;
+    }
     QString fileName = QFileDialog::getOpenFileName(this);
     if (!fileName.isEmpty()) {
-        QMdiSubWindow *existing = findMdiChild(fileName);
-        if (existing) {
-            mdiArea->setActiveSubWindow(existing);
-            return;
-        }
-
-        if (openFile(fileName))
+        // TODO: checkout fileName is not same as current file
+        if (loadFile(fileName))
             statusBar()->showMessage(tr("File loaded"), 2000);
     }
 }
 
-bool MainWindow::openFile(const QString &fileName)
+bool MainWindow::loadFile(const QString &fileName)
 {
-    DrawView *child = createMdiChild();
-    const bool succeeded = child->loadFile(fileName);
-    if (succeeded)
-        child->show();
-    else
-        child->close();
-    return succeeded;
+    QFile file(fileName);
+    if (!file.open(QFile::ReadOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Drawing"),
+                             tr("Cannot read file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    undoStack->clear();
+    m_view->scene()->clear();
+    m_view->setModified(false);
+    // TODO: refresh view and data
+
+    QXmlStreamReader xml(&file);
+    if (xml.readNextStartElement()) {
+        if ( xml.name() == tr("canvas"))
+        {
+            int width = xml.attributes().value(tr("width")).toInt();
+            int height = xml.attributes().value(tr("height")).toInt();
+            m_view->scene()->setSceneRect(0,0,width,height);
+            m_view->loadCanvas(&xml);
+        }
+    }
+
+    // setCurrentFile(fileName);
+    qDebug()<<xml.errorString();
+    if (xml.error() != QXmlStreamReader::NoError)
+    {
+        return false;
+    }
+
+    setCurrentFile(fileName);
+    // TODO: load other data
+    // refresh window
+
+    m_changed = false;
+    statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
-void MainWindow::save()
+bool MainWindow::saveAs()
 {
-    if (activeMdiChild() && activeMdiChild()->save())
-        statusBar()->showMessage(tr("File saved"), 2000);
+    QFileDialog dialog(this);
+    dialog.setWindowModality(Qt::WindowModal);
+    dialog.setDefaultSuffix(".xml");
+    dialog.setAcceptMode(QFileDialog::AcceptSave);
+    if (dialog.exec() != QDialog::Accepted)
+        return false;
+    return saveFile(dialog.selectedFiles().first());
+}
+
+bool MainWindow::saveFile(const QString &fileName)
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text)) {
+        QMessageBox::warning(this, tr("Drawing"),
+                             tr("Cannot write file %1:\n%2.")
+                             .arg(fileName)
+                             .arg(file.errorString()));
+        return false;
+    }
+
+    QXmlStreamWriter xml(&file);
+    xml.setAutoFormatting(true);
+    xml.writeStartDocument();
+    xml.writeDTD("<!DOCTYPE qdraw>");
+    xml.writeStartElement("canvas");
+    xml.writeAttribute("width",QString("%1").arg(m_view->scene()->width()));
+    xml.writeAttribute("height",QString("%1").arg(m_view->scene()->height()));
+
+    for (QGraphicsItem *item : m_view->scene()->items()) {
+        AbstractShape * ab = qgraphicsitem_cast<AbstractShape*>(item);
+        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(item->parentItem());
+        if ( ab &&!qgraphicsitem_cast<SizeHandleRect*>(ab) && !g ){
+            ab->saveToXml(&xml);
+        }
+    }
+    
+    // TODO: save other data
+    xml.writeEndElement();
+    xml.writeEndDocument();
+
+    setCurrentFile(fileName);
+    m_changed = false;
+    m_view->setModified(false);
+    statusBar()->showMessage(tr("File saved"), 2000);
+    return true;
+}
+
+bool MainWindow::save()
+{
+    if (m_currentFile.isEmpty()) {
+        return saveAs();
+    }
+    else {
+        return saveFile(m_currentFile);
+    }
+}
+
+bool MainWindow::maybeSave()
+{
+    // TODO: use m_changed
+    if (!m_view->isModified())
+        return true;
+    const QMessageBox::StandardButton ret
+        = QMessageBox::warning(this, tr("Application"),
+                               tr("The document has been modified.\n"
+                                  "Do you want to save your changes?"),
+                               QMessageBox::Save | QMessageBox::Discard | QMessageBox::Cancel);
+    switch (ret) {
+    case QMessageBox::Save:
+        return save();
+    case QMessageBox::Cancel:
+        return false;
+    default:
+        break;
+    }
+    return true;
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    mdiArea->closeAllSubWindows();
-    if (mdiArea->currentSubWindow()) {
-        event->ignore();
-    } else {
+    if (maybeSave()) {
         event->accept();
+    } else {
+        event->ignore();
     }
 }
 
-DrawView *MainWindow::createMdiChild()
+DrawView *MainWindow::createGraphicsView()
 {
-
     DrawScene *scene = new DrawScene(this);
 
     QRectF rc = QRectF(0 , 0 , 800, 600);
@@ -515,12 +521,7 @@ DrawView *MainWindow::createMdiChild()
     // move orign point to leftbottom
     view->setTransform(view->transform().scale(1,-1));
 
-
     scene->setBackgroundBrush(Qt::darkGray);
-
-    mdiArea->addSubWindow(view);
-
-    view->showMaximized();
     return view;
 }
 
@@ -546,29 +547,26 @@ void MainWindow::addShape()
         DrawTool::c_drawShape = polyline;
 
     if ( sender() != selectAct && sender() != rotateAct ){
-        activeMdiChild()->scene()->clearSelection();
+        m_view->scene()->clearSelection();
     }
 }
 
 void MainWindow::updateActions()
 {
+    QGraphicsScene * scene = m_view->scene();
 
-     QGraphicsScene * scene = NULL;
-    if (activeMdiChild())
-        scene = activeMdiChild()->scene();
+    selectAct->setEnabled(true);
+    lineAct->setEnabled(true);
+    rectAct->setEnabled(true);
+    roundRectAct->setEnabled(true);
+    ellipseAct->setEnabled(true);
+    bezierAct->setEnabled(true);
+    rotateAct->setEnabled(true);
+    polygonAct->setEnabled(true);
+    polylineAct->setEnabled(true);
 
-    selectAct->setEnabled(scene);
-    lineAct->setEnabled(scene);
-    rectAct->setEnabled(scene);
-    roundRectAct->setEnabled(scene);
-    ellipseAct->setEnabled(scene);
-    bezierAct->setEnabled(scene);
-    rotateAct->setEnabled(scene);
-    polygonAct->setEnabled(scene);
-    polylineAct->setEnabled(scene);
-
-    zoomInAct->setEnabled(scene);
-    zoomOutAct->setEnabled(scene);
+    zoomInAct->setEnabled(true);
+    zoomOutAct->setEnabled(true);
 
     selectAct->setChecked(DrawTool::c_drawShape == selection);
     lineAct->setChecked(DrawTool::c_drawShape == line);
@@ -583,34 +581,33 @@ void MainWindow::updateActions()
     redoAct->setEnabled(undoStack->canRedo());
 
 
-    bringToFrontAct->setEnabled(scene && scene->selectedItems().count() > 0);
-    sendToBackAct->setEnabled(scene && scene->selectedItems().count() > 0);
-    groupAct->setEnabled( scene && scene->selectedItems().count() > 0);
-    unGroupAct->setEnabled(scene &&scene->selectedItems().count() > 0 &&
+    bringToFrontAct->setEnabled(scene->selectedItems().count() > 0);
+    sendToBackAct->setEnabled(scene->selectedItems().count() > 0);
+    groupAct->setEnabled( scene->selectedItems().count() > 0);
+    unGroupAct->setEnabled(scene->selectedItems().count() > 0 &&
                               dynamic_cast<GraphicsItemGroup*>( scene->selectedItems().first()));
 
-    leftAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    rightAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    leftAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    vCenterAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    hCenterAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    upAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    downAct->setEnabled(scene && scene->selectedItems().count() > 1);
+    leftAct->setEnabled(scene->selectedItems().count() > 1);
+    rightAct->setEnabled(scene->selectedItems().count() > 1);
+    leftAct->setEnabled(scene->selectedItems().count() > 1);
+    vCenterAct->setEnabled(scene->selectedItems().count() > 1);
+    hCenterAct->setEnabled(scene->selectedItems().count() > 1);
+    upAct->setEnabled(scene->selectedItems().count() > 1);
+    downAct->setEnabled(scene->selectedItems().count() > 1);
 
-    heightAct->setEnabled(scene && scene->selectedItems().count() > 1);
-    widthAct->setEnabled(scene &&scene->selectedItems().count() > 1);
-    allAct->setEnabled(scene &&scene->selectedItems().count()>1);
-    horzAct->setEnabled(scene &&scene->selectedItems().count() > 2);
-    vertAct->setEnabled(scene &&scene->selectedItems().count() > 2);
+    heightAct->setEnabled(scene->selectedItems().count() > 1);
+    widthAct->setEnabled(scene->selectedItems().count() > 1);
+    allAct->setEnabled(scene->selectedItems().count()>1);
+    horzAct->setEnabled(scene->selectedItems().count() > 2);
+    vertAct->setEnabled(scene->selectedItems().count() > 2);
 
-    copyAct->setEnabled(scene &&scene->selectedItems().count() > 0);
-    cutAct->setEnabled(scene &&scene->selectedItems().count() > 0);
+    copyAct->setEnabled(scene->selectedItems().count() > 0);
+    cutAct->setEnabled(scene->selectedItems().count() > 0);
 }
 
 void MainWindow::itemSelected()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     if ( scene->selectedItems().count() > 0
          && scene->selectedItems().first()->isSelected())
@@ -623,22 +620,20 @@ void MainWindow::itemSelected()
 void MainWindow::itemMoved(QGraphicsItem *item, const QPointF &oldPosition)
 {
     Q_UNUSED(item);
-    if (!activeMdiChild()) return ;
-        activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     if ( item ){
         QUndoCommand *moveCommand = new MoveShapeCommand(item, oldPosition);
         undoStack->push(moveCommand);
     }else{
-        QUndoCommand *moveCommand = new MoveShapeCommand(activeMdiChild()->scene(), oldPosition);
+        QUndoCommand *moveCommand = new MoveShapeCommand(m_view->scene(), oldPosition);
         undoStack->push(moveCommand);
     }
 }
 
 void MainWindow::itemAdded(QGraphicsItem *item)
 {
-    if (!activeMdiChild()) return ;
-        activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QUndoCommand *addCommand = new AddShapeCommand(item, item->scene());
     undoStack->push(addCommand);
@@ -646,8 +641,7 @@ void MainWindow::itemAdded(QGraphicsItem *item)
 
 void MainWindow::itemRotate(QGraphicsItem *item, const qreal oldAngle)
 {
-    if (!activeMdiChild()) return ;
-        activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QUndoCommand *rotateCommand = new RotateShapeCommand(item , oldAngle);
     undoStack->push(rotateCommand);
@@ -655,8 +649,7 @@ void MainWindow::itemRotate(QGraphicsItem *item, const qreal oldAngle)
 
 void MainWindow::itemResize(QGraphicsItem *item, int handle, const QPointF& scale)
 {
-    if (!activeMdiChild()) return ;
-        activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QUndoCommand *resizeCommand = new ResizeShapeCommand(item ,handle, scale );
     undoStack->push(resizeCommand);
@@ -664,8 +657,7 @@ void MainWindow::itemResize(QGraphicsItem *item, int handle, const QPointF& scal
 
 void MainWindow::itemControl(QGraphicsItem *item, int handle, const QPointF & newPos ,const QPointF &lastPos_)
 {
-    if (!activeMdiChild()) return ;
-        activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QUndoCommand *controlCommand = new ControlShapeCommand(item ,handle, newPos, lastPos_ );
     undoStack->push(controlCommand);
@@ -674,9 +666,9 @@ void MainWindow::itemControl(QGraphicsItem *item, int handle, const QPointF & ne
 void MainWindow::deleteItem()
 {
     qDebug()<<"deleteItem";
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
-    activeMdiChild()->setModified(true);
+
+    QGraphicsScene * scene = m_view->scene();
+    m_view->setModified(true);
 
     if (scene->selectedItems().isEmpty())
         return;
@@ -688,12 +680,11 @@ void MainWindow::deleteItem()
 
 void MainWindow::on_actionBringToFront_triggered()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     if (scene->selectedItems().isEmpty())
         return;
-    activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QGraphicsItem *selectedItem = scene->selectedItems().first();
 
@@ -709,13 +700,12 @@ void MainWindow::on_actionBringToFront_triggered()
 }
 void MainWindow::on_actionSendToBack_triggered()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     if (scene->selectedItems().isEmpty())
         return;
 
-     activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     QGraphicsItem *selectedItem = scene->selectedItems().first();
     QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
@@ -730,10 +720,9 @@ void MainWindow::on_actionSendToBack_triggered()
 
 void MainWindow::on_aglin_triggered()
 {
-    if (!activeMdiChild()) return ;
-    DrawScene * scene =dynamic_cast<DrawScene*>(activeMdiChild()->scene());
+    DrawScene * scene =dynamic_cast<DrawScene*>(m_view->scene());
 
-    activeMdiChild()->setModified(true);
+    m_view->setModified(true);
 
     if ( sender() == rightAct ){
         scene->align(RIGHT_ALIGN);
@@ -760,21 +749,18 @@ void MainWindow::on_aglin_triggered()
 }
 
 void MainWindow::zoomIn()
-{    
-    if (!activeMdiChild()) return ;
-     activeMdiChild()->zoomIn();
+{
+    m_view->zoomIn();
 }
 
 void MainWindow::zoomOut()
 {
-    if (!activeMdiChild()) return ;
-     activeMdiChild()->zoomOut();
+    m_view->zoomOut();
 }
 
 void MainWindow::on_group_triggered()
 {
-    if (!activeMdiChild()) return ;
-    DrawScene * scene = dynamic_cast<DrawScene*>(activeMdiChild()->scene());
+    DrawScene * scene = dynamic_cast<DrawScene*>(m_view->scene());
 
     //QGraphicsItemGroup
     QList<QGraphicsItem *> selectedItems = scene->selectedItems();
@@ -787,8 +773,7 @@ void MainWindow::on_group_triggered()
 
 void MainWindow::on_unGroup_triggered()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     QGraphicsItem *selectedItem = scene->selectedItems().first();
     GraphicsItemGroup * group = dynamic_cast<GraphicsItemGroup*>(selectedItem);
@@ -809,8 +794,7 @@ void MainWindow::on_func_test_triggered()
 
 void MainWindow::on_copy()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     ShapeMimeData * data = new ShapeMimeData( scene->selectedItems() );
     QApplication::clipboard()->setMimeData(data);
@@ -818,8 +802,7 @@ void MainWindow::on_copy()
 
 void MainWindow::on_paste()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     QMimeData * mp = const_cast<QMimeData *>(QApplication::clipboard()->mimeData()) ;
     ShapeMimeData * data = dynamic_cast< ShapeMimeData*>( mp );
@@ -840,8 +823,7 @@ void MainWindow::on_paste()
 
 void MainWindow::on_cut()
 {
-    if (!activeMdiChild()) return ;
-    QGraphicsScene * scene = activeMdiChild()->scene();
+    QGraphicsScene * scene = m_view->scene();
 
     QList<QGraphicsItem *> copylist ;
     foreach (QGraphicsItem *item , scene->selectedItems()) {
@@ -868,13 +850,6 @@ void MainWindow::positionChanged(int x, int y)
    char buf[255];
    sprintf(buf,"%d,%d",x,y);
    statusBar()->showMessage(buf);
-}
-
-void MainWindow::setActiveSubWindow(QWidget *window)
-{
-    if (!window)
-        return;
-    mdiArea->setActiveSubWindow(qobject_cast<QMdiSubWindow *>(window));
 }
 
 void MainWindow::about()

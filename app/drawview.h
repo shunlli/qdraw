@@ -25,6 +25,7 @@ public:
     QString currentFile() { return curFile; }
     void setModified( bool value ) { modified = value ; }
     bool isModified() const { return modified; }
+    void loadCanvas( QXmlStreamReader *xml );
 signals:
     void positionChanged(int x , int y );
 protected:
@@ -42,7 +43,6 @@ private:
     bool maybeSave();
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
-    void loadCanvas( QXmlStreamReader *xml );
     GraphicsItemGroup * loadGroupFromXML( QXmlStreamReader * xml );
 
     QString curFile;

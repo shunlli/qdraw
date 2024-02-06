@@ -25,8 +25,6 @@ class QAbstractButton;
 class QGraphicsView;
 class QListWidget;
 class QStatusBar;
-class QMdiArea;
-class QMdiSubWindow;
 class QSignalMapper;
 class QUndoStack;
 class QUndoView;
@@ -43,17 +41,13 @@ public:
     MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    bool openFile(const QString &fileName);
-
 public slots:
 
     void newFile();
     void open();
-    void save();
-    DrawView *createMdiChild();
-    void updateMenus();
-    void updateWindowMenu();
-    void setActiveSubWindow(QWidget *window);
+    bool save();
+    bool saveAs();
+    DrawView *createGraphicsView();
 
     void addShape();
     void updateActions();
@@ -88,15 +82,10 @@ private:
     void createMenus();
     void createToolbars();
     void createPropertyEditor();
-
-    DrawView *activeMdiChild();
-    QMdiSubWindow *findMdiChild(const QString &fileName);
-
-
-    QMenu *windowMenu;
-
-    QMdiArea *mdiArea;
-    QSignalMapper *windowMapper;
+    void setCurrentFile(const QString &fileName);
+    bool maybeSave();
+    bool loadFile(const QString &fileName);
+    bool saveFile(const QString &fileName);
 
     // update ui
     QTimer      m_timer;
@@ -123,6 +112,7 @@ private:
     QAction *newAct;
     QAction *openAct;
     QAction *saveAct;
+    QAction *saveAsAct;
     QAction *exitAct;
 
     QAction  * groupAct;
@@ -151,12 +141,6 @@ private:
     QAction  * bezierAct;
     QAction  * rotateAct;
 
-    QAction *closeAct;
-    QAction *closeAllAct;
-    QAction *tileAct;
-    QAction *cascadeAct;
-    QAction *nextAct;
-    QAction *previousAct;
     QAction *separatorAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
@@ -165,6 +149,10 @@ private:
     QUndoView *undoView;
     // statusbar label
     QLabel *m_posInfo;
+
+    DrawView * m_view;
+    QString m_currentFile;
+    bool m_changed{false};
 };
 
 #endif // MAINWINDOW_H
