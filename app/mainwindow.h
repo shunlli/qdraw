@@ -50,6 +50,7 @@ public slots:
     DrawView *createGraphicsView();
 
     void addShape();
+    void setBooleanOperation();
     void updateActions();
     void deleteItem();
     void itemSelected();
@@ -107,7 +108,6 @@ private:
     QAction  * bringToFrontAct;
     QAction  * sendToBackAct;
 
-    QAction  * funcAct;
     // file
     QAction *newAct;
     QAction *openAct;
@@ -141,9 +141,17 @@ private:
     QAction  * bezierAct;
     QAction  * rotateAct;
 
+    QToolBar * booleanToolBar;
+    QActionGroup * booleanActionGroup;
+    QAction  * mergeAct;
+    QAction  * replacesOldAct;
+    QAction  * replacesNewAct;
+    QAction  * overlapsOldAct;
+    QAction  * overlapsNewAct;
+
     QAction *separatorAct;
     QAction *aboutAct;
-    QAction *aboutQtAct;
+    QAction  * funcAct;
 
     QUndoStack *undoStack;
     QUndoView *undoView;

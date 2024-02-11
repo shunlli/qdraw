@@ -4,8 +4,12 @@
 #include <QGraphicsItem>
 #include <QMdiSubWindow>
 #include <QUndoStack>
+#include <QFile>
+#include <QTextStream>
 #include "drawobj.h"
 #include "commands.h"
+#include "materials.h"
+#include "context.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -75,17 +79,6 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-    separatorAct = new QAction(this);
-    separatorAct->setSeparator(true);
-
-    aboutAct = new QAction(tr("&About"), this);
-    aboutAct->setStatusTip(tr("Show the application's About box"));
-    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
-
-    aboutQtAct = new QAction(tr("About &Qt"), this);
-    aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
-    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
-
     // create align actions
     rightAct   = new QAction(QIcon(":/icons/align_right.png"),tr("right"),this);
     leftAct    = new QAction(QIcon(":/icons/align_left.png"),tr("left"),this);
@@ -125,13 +118,11 @@ void MainWindow::createActions()
 
     //create draw actions
     selectAct = new QAction(QIcon(":/icons/arrow.png"),tr("select tool"),this);
-
     selectAct->setCheckable(true);
     lineAct = new QAction(QIcon(":/icons/line.png"),tr("line tool"),this);
     lineAct->setCheckable(true);
     rectAct = new QAction(QIcon(":/icons/rectangle.png"),tr("rect tool"),this);
     rectAct->setCheckable(true);
-
     roundRectAct =  new QAction(QIcon(":/icons/roundrect.png"),tr("roundrect tool"),this);
     roundRectAct->setCheckable(true);
     ellipseAct = new QAction(QIcon(":/icons/ellipse.png"),tr("ellipse tool"),this);
@@ -158,7 +149,6 @@ void MainWindow::createActions()
     drawActionGroup->addAction(rotateAct);
     selectAct->setChecked(true);
 
-
     connect(selectAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(lineAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(rectAct,SIGNAL(triggered()),this,SLOT(addShape()));
@@ -168,6 +158,31 @@ void MainWindow::createActions()
     connect(polylineAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(bezierAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(rotateAct,SIGNAL(triggered()),this,SLOT(addShape()));
+
+    mergeAct = new QAction(QIcon(":/icons/merge.png"),tr("merge"),this);
+    mergeAct->setCheckable(true);
+    replacesOldAct = new QAction(QIcon(":/icons/newreplacesold.png"),tr("new replaces old"),this);
+    replacesOldAct->setCheckable(true);
+    replacesNewAct = new QAction(QIcon(":/icons/oldreplacesnew.png"),tr("old replaces new"),this);
+    replacesNewAct->setCheckable(true);
+    overlapsOldAct = new QAction(QIcon(":/icons/newoverlapsold.png"),tr("new overlaps old"),this);
+    overlapsOldAct->setCheckable(true);
+    overlapsNewAct = new QAction(QIcon(":/icons/oldoverlapsnew.png"),tr("old overlaps new"),this);
+    overlapsNewAct->setCheckable(true);
+
+    booleanActionGroup = new QActionGroup(this);
+    booleanActionGroup->addAction(mergeAct);
+    booleanActionGroup->addAction(replacesOldAct);
+    booleanActionGroup->addAction(replacesNewAct);
+    booleanActionGroup->addAction(overlapsOldAct);
+    booleanActionGroup->addAction(overlapsNewAct);
+    replacesOldAct->setChecked(true);
+
+    connect(mergeAct,SIGNAL(triggered()),this,SLOT(setBooleanOperation()));
+    connect(replacesOldAct,SIGNAL(triggered()),this,SLOT(setBooleanOperation()));
+    connect(replacesNewAct,SIGNAL(triggered()),this,SLOT(setBooleanOperation()));
+    connect(overlapsOldAct,SIGNAL(triggered()),this,SLOT(setBooleanOperation()));
+    connect(overlapsNewAct,SIGNAL(triggered()),this,SLOT(setBooleanOperation()));
 
     deleteAct = new QAction(tr("&Delete"), this);
     deleteAct->setShortcut(QKeySequence::Delete);
@@ -200,7 +215,14 @@ void MainWindow::createActions()
     connect(zoomOutAct , SIGNAL(triggered()),this,SLOT(zoomOut()));
     connect(deleteAct, SIGNAL(triggered()), this, SLOT(deleteItem()));
 
-    funcAct = new QAction(tr("func test"),this);
+    separatorAct = new QAction(this);
+    separatorAct->setSeparator(true);
+
+    aboutAct = new QAction(tr("&About"), this);
+    aboutAct->setStatusTip(tr("Show the application's About box"));
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    funcAct = new QAction(tr("test"),this);
     connect(funcAct,SIGNAL(triggered()),this,SLOT(on_func_test_triggered()));
 
 }
@@ -231,34 +253,40 @@ void MainWindow::createMenus()
     QMenu *shapeTool = new QMenu("&Shape");
     shapeTool->addAction(selectAct);
     shapeTool->addAction(rectAct);
-    shapeTool->addAction(roundRectAct);
-    shapeTool->addAction(ellipseAct);
+    // shapeTool->addAction(roundRectAct);
+    // shapeTool->addAction(ellipseAct);
     shapeTool->addAction(polygonAct);
-    shapeTool->addAction(polylineAct);
-    shapeTool->addAction(bezierAct);
-    shapeTool->addAction(rotateAct);
+    // shapeTool->addAction(polylineAct);
+    // shapeTool->addAction(bezierAct);
+    // shapeTool->addAction(rotateAct);
     toolMenu->addMenu(shapeTool);
-    QMenu *alignMenu = new QMenu("Align");
-    alignMenu->addAction(rightAct);
-    alignMenu->addAction(leftAct);
-    alignMenu->addAction(hCenterAct);
-    alignMenu->addAction(vCenterAct);
-    alignMenu->addAction(upAct);
-    alignMenu->addAction(downAct);
-    alignMenu->addAction(horzAct);
-    alignMenu->addAction(vertAct);
-    alignMenu->addAction(heightAct);
-    alignMenu->addAction(widthAct);
-    alignMenu->addAction(allAct);
-    toolMenu->addMenu(alignMenu);
 
-    menuBar()->addSeparator();
+    QMenu *booleanMenu = new QMenu("Boolean");
+    booleanMenu->addAction(mergeAct);
+    booleanMenu->addAction(replacesOldAct);
+    booleanMenu->addAction(replacesNewAct);
+    booleanMenu->addAction(overlapsOldAct);
+    booleanMenu->addAction(overlapsNewAct);
+    toolMenu->addMenu(booleanMenu);
+
+    // QMenu *alignMenu = new QMenu("Align");
+    // alignMenu->addAction(rightAct);
+    // alignMenu->addAction(leftAct);
+    // alignMenu->addAction(hCenterAct);
+    // alignMenu->addAction(vCenterAct);
+    // alignMenu->addAction(upAct);
+    // alignMenu->addAction(downAct);
+    // alignMenu->addAction(horzAct);
+    // alignMenu->addAction(vertAct);
+    // alignMenu->addAction(heightAct);
+    // alignMenu->addAction(widthAct);
+    // alignMenu->addAction(allAct);
+    // toolMenu->addMenu(alignMenu);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
-    helpMenu->addAction(aboutQtAct);
+    helpMenu->addAction(separatorAct);
     helpMenu->addAction(funcAct);
-
 }
 
 void MainWindow::createToolbars()
@@ -276,22 +304,48 @@ void MainWindow::createToolbars()
     editToolBar->addAction(zoomInAct);
     editToolBar->addAction(zoomOutAct);
 
+    QComboBox *comboBox = new QComboBox();
+    auto mats = Materials::instance();
+    for (int i=0; i < mats->getMaterials().count(); i++){
+        auto mat = mats->getMaterials()[i];
+        comboBox->addItem(mat.name);
+        comboBox->setItemData(i, mat.color, Qt::BackgroundColorRole);
+    }
+    editToolBar->addWidget(comboBox);
+    connect(comboBox, qOverload<int>(&QComboBox::currentIndexChanged), [=](int index){
+        QColor color = comboBox->itemData(index, Qt::BackgroundColorRole).value<QColor>();
+        QString rgb = QString("rgb(%1, %2, %3)").arg(color.red()).arg(color.green()).arg(color.blue());
+        comboBox->setStyleSheet("QComboBox { background-color: "+rgb+" }");
+        auto ctx = Context::instance();
+        ctx->setCurrentMaterial(comboBox->itemText(index));
+    });
+    comboBox->setCurrentIndex(-1);
+    comboBox->setCurrentIndex(0);
+
     // create draw toolbar
     drawToolBar = addToolBar(tr("drawing"));
     drawToolBar->setIconSize(QSize(24,24));
     drawToolBar->addAction(selectAct);
-    drawToolBar->addAction(lineAct);
+    // drawToolBar->addAction(lineAct);
     drawToolBar->addAction(rectAct);
-    drawToolBar->addAction(roundRectAct);
-    drawToolBar->addAction(ellipseAct);
+    // drawToolBar->addAction(roundRectAct);
+    // drawToolBar->addAction(ellipseAct);
     drawToolBar->addAction(polygonAct);
-    drawToolBar->addAction(polylineAct);
-    drawToolBar->addAction(bezierAct);
-    drawToolBar->addAction(rotateAct);
+    // drawToolBar->addAction(polylineAct);
+    // drawToolBar->addAction(bezierAct);
+    // drawToolBar->addAction(rotateAct);
+
+    booleanToolBar = addToolBar(tr("boolean"));
+    booleanToolBar->setIconSize(QSize(24,24));
+    booleanToolBar->addAction(mergeAct);
+    booleanToolBar->addAction(replacesOldAct);
+    booleanToolBar->addAction(replacesNewAct);
+    booleanToolBar->addAction(overlapsOldAct);
+    booleanToolBar->addAction(overlapsNewAct);
 
     // create align toolbar
-    // alignToolBar = addToolBar(tr("align"));
-    // alignToolBar->setIconSize(QSize(24,24));
+    alignToolBar = addToolBar(tr("align"));
+    alignToolBar->setIconSize(QSize(24,24));
     // alignToolBar->addAction(upAct);
     // alignToolBar->addAction(downAct);
     // alignToolBar->addAction(rightAct);
@@ -305,8 +359,8 @@ void MainWindow::createToolbars()
     // alignToolBar->addAction(widthAct);
     // alignToolBar->addAction(allAct);
 
-    // alignToolBar->addAction(bringToFrontAct);
-    // alignToolBar->addAction(sendToBackAct);
+    alignToolBar->addAction(bringToFrontAct);
+    alignToolBar->addAction(sendToBackAct);
     // alignToolBar->addAction(groupAct);
     // alignToolBar->addAction(unGroupAct);
 }
@@ -549,10 +603,29 @@ void MainWindow::addShape()
     if ( sender() != selectAct && sender() != rotateAct ){
         m_view->scene()->clearSelection();
     }
+    if ( sender() != selectAct){
+        m_view->scene()->clearSelection();
+    }
+}
+
+void MainWindow::setBooleanOperation()
+{
+    Context *context = Context::instance();
+    if (sender() == mergeAct)
+        context->setBooleanOperation(MergeOper);
+    if (sender() == replacesOldAct)
+        context->setBooleanOperation(NewReplacesOldOper);
+    if (sender() == replacesNewAct)
+        context->setBooleanOperation(OldReplacesNewOper);
+    if (sender() == overlapsOldAct)
+        context->setBooleanOperation(NewOverlpasOldOper);
+    if (sender() == overlapsNewAct)
+        context->setBooleanOperation(OldOverlpasNewOper);
 }
 
 void MainWindow::updateActions()
 {
+    Context *context = Context::instance();
     QGraphicsScene * scene = m_view->scene();
 
     selectAct->setEnabled(true);
@@ -577,9 +650,15 @@ void MainWindow::updateActions()
     rotateAct->setChecked(DrawTool::c_drawShape == rotation);
     polygonAct->setChecked(DrawTool::c_drawShape == polygon);
     polylineAct->setChecked(DrawTool::c_drawShape == polyline );
+
+    mergeAct->setChecked(context->boolOperation() == MergeOper);
+    replacesOldAct->setChecked(context->boolOperation() == NewReplacesOldOper);
+    replacesNewAct->setChecked(context->boolOperation() == OldReplacesNewOper);
+    overlapsOldAct->setChecked(context->boolOperation() == NewOverlpasOldOper);
+    overlapsNewAct->setChecked(context->boolOperation() == OldOverlpasNewOper);
+
     undoAct->setEnabled(undoStack->canUndo());
     redoAct->setEnabled(undoStack->canRedo());
-
 
     bringToFrontAct->setEnabled(scene->selectedItems().count() > 0);
     sendToBackAct->setEnabled(scene->selectedItems().count() > 0);
@@ -637,6 +716,36 @@ void MainWindow::itemAdded(QGraphicsItem *item)
 
     QUndoCommand *addCommand = new AddShapeCommand(item, item->scene());
     undoStack->push(addCommand);
+
+    QList<QGraphicsItem *> IntersectsItems = item->collidingItems();
+    Context *context = Context::instance();
+    BooleanOperation oper = context->boolOperation();
+
+    AbstractShape *shape = qgraphicsitem_cast<AbstractShape*>(item);
+    for (auto it:IntersectsItems)
+    {
+        auto path = shape->path();
+        path = item->mapToScene(path);
+        AbstractShape *itShape = qgraphicsitem_cast<AbstractShape*>(it);
+        if (!itShape || qgraphicsitem_cast<SizeHandleRect*>(itShape))
+            continue;
+        auto itPath = itShape->path();
+        itPath = it->mapToScene(itPath);
+
+        if (oper == NewReplacesOldOper)
+        {
+            itPath = itPath.subtracted(path);
+            itPath.closeSubpath();
+            itPath = it->mapFromScene(itPath);
+            itShape->setPath(itPath);
+        } else if (oper == OldReplacesNewOper)
+        {
+            path = path.subtracted(itPath);
+            path.closeSubpath();
+            path = item->mapFromScene(path);
+            shape->setPath(path);
+        }
+    }
 }
 
 void MainWindow::itemRotate(QGraphicsItem *item, const qreal oldAngle)
@@ -783,13 +892,109 @@ void MainWindow::on_unGroup_triggered()
     }
 }
 
+struct GmshPoint {
+    int id;
+    QPointF p;
+};
+
+struct GmshLine {
+    int id;
+    QList<int> pointIds;
+};
+
 void MainWindow::on_func_test_triggered()
 {
-/*
-        QtGradientEditor * editor = new QtGradientEditor(NULL);
-        editor->show();
-*/
-//    dockProperty->showNormal();
+    QString str;
+    str += "SetFactory(\"OpenCASCADE\");\n";
+    str += "Mesh.MeshSizeMin = 5;\n";
+    str += "Mesh.MeshSizeMax = 10;\n\n";
+
+    int pointId = 1;
+    int lineId = 1;
+    int surfaceId = 1;
+    QMap<QGraphicsItem *, int> itemIdMap;
+    QGraphicsScene * scene = m_view->scene();
+    QList<QGraphicsItem *> items;
+    for (auto item: scene->items())
+    {
+        AbstractShape *shape = qgraphicsitem_cast<AbstractShape*>(item);
+        if (!shape || qgraphicsitem_cast<SizeHandleRect*>(shape))
+            continue;
+        items.append(item);
+    }
+    for (auto item: items)
+    {
+        AbstractShape *shape = qgraphicsitem_cast<AbstractShape*>(item);
+        auto path = shape->path();
+        path.closeSubpath();
+        path = item->mapToScene(path);
+        qDebug() << path;
+        QList<GmshPoint> points;
+        QList<QString> lineIds;
+        QList<GmshLine> lines;
+        for (int i=0; i<path.elementCount(); i++)
+        {
+            auto e = path.elementAt(i);
+            // if (e.isMoveTo())
+            // if (e.isLineTo())
+            QPointF p = QPointF(e);
+            GmshPoint point;
+            point.id = pointId++;
+            point.p = p;
+            points.append(point);
+            if (i == 0)
+            {
+                continue;
+            }
+            GmshLine line;
+            line.id = lineId++;
+            line.pointIds.append(pointId-2);
+            line.pointIds.append(pointId-1);
+            lineIds.append(QString::number(line.id));
+            lines.append(line);
+
+            lineId++;  // gmsh add extra line for close
+        }
+        for (auto p:points)
+        {
+            str += QString("Point(%1) = {%2, %3, 0, 10};\n").arg(p.id).arg(p.p.x()).arg(p.p.y());
+        }
+        for (auto l:lines)
+        {
+            str += QString("Line(%1) = {%2, %3};\n").arg(l.id).arg(l.pointIds[0]).arg(l.pointIds[1]);
+        }
+        itemIdMap[item] = surfaceId;
+        int curveLoopId = surfaceId++;
+        str += QString("Curve Loop(%1) = {%2};\n").arg(curveLoopId).arg(lineIds.join(","));
+        str += QString("Plane Surface(%1) = {%2};\n\n").arg(curveLoopId).arg(curveLoopId);
+    }
+
+    for (auto item : items)
+    {
+        QList<QString> intersects;
+        for (auto it : items)
+        {
+            if (it == item)
+                continue;
+            if (item->collidesWithItem(it))
+            {
+                intersects.append(QString::number(itemIdMap[it]));
+            }
+        }
+        if (intersects.isEmpty())
+            continue;
+
+        QString fmt = "BooleanFragments { Surface{%1}; Delete; }{ Surface{%2};Delete; };\n";
+        str += QString(fmt).arg(itemIdMap[item]).arg(intersects.join(","));
+    }
+
+    QString filename = "gmsh.geo";
+    QFile file(filename);
+    if (!file.open(QIODevice::WriteOnly)) {
+        return;
+    }
+    QTextStream stream(&file);
+    stream << str << endl;
 }
 
 void MainWindow::on_copy()

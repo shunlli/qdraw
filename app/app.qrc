@@ -34,5 +34,10 @@
         <file>icons/copy.png</file>
         <file>icons/cut.png</file>
         <file>icons/paste.png</file>
+        <file>icons/merge.png</file>
+        <file>icons/newoverlapsold.png</file>
+        <file>icons/newreplacesold.png</file>
+        <file>icons/oldoverlapsnew.png</file>
+        <file>icons/oldreplacesnew.png</file>
     </qresource>
 </RCC>

@@ -248,6 +248,7 @@ GraphicsRectItem::GraphicsRectItem(const QRect & rect , bool isRound , QGraphics
     ,m_fRatioX(1/10.0)
     ,m_fRatioY(1/3.0)
 {
+    m_pen = QPen(Qt::black);
 
     m_width = rect.width();
     m_height = rect.height();
@@ -291,6 +292,16 @@ QPainterPath GraphicsRectItem::shape() const
         path.addRect(rect());
     return path;
 }
+
+// QPainterPath GraphicsRectItem::path() const
+// {
+//     // qDebug() << __LINE__ << pos().x() << pos().y() << zValue();
+//     // qDebug() << __LINE__ << rect() << width() << height();
+//     auto path = shape();
+//     // qDebug() << __LINE__ << mapToScene(path);
+//     // return mapToScene(path);
+//     return path;
+// }
 
 void GraphicsRectItem::control(int dir, const QPointF & delta)
 {
@@ -391,6 +402,10 @@ void GraphicsRectItem::updateCoordinate()
         updatehandles();
     }
     m_initialRect = m_localRect;
+
+    QPainterPath path;
+    path.addRect(rect());
+    setPath(path);
 }
 
 void GraphicsRectItem::move(const QPointF &point)
@@ -490,15 +505,16 @@ void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
        ry = 0;
    else
        ry = m_height * m_fRatioY + 0.5;
-   if ( m_isRound )
-       painter->drawRoundedRect(rect(),rx,ry);
-   else
-       painter->drawRect(rect().toRect());
+//    if ( m_isRound )
+//        painter->drawRoundedRect(rect(),rx,ry);
+//    else
+//        painter->drawRect(rect().toRect());
 
-   painter->setPen(Qt::blue);
-   painter->drawLine(QLine(QPoint(opposite_.x()-6,opposite_.y()),QPoint(opposite_.x()+6,opposite_.y())));
-   painter->drawLine(QLine(QPoint(opposite_.x(),opposite_.y()-6),QPoint(opposite_.x(),opposite_.y()+6)));
+//    painter->setPen(Qt::blue);
+//    painter->drawLine(QLine(QPoint(opposite_.x()-6,opposite_.y()),QPoint(opposite_.x()+6,opposite_.y())));
+//    painter->drawLine(QLine(QPoint(opposite_.x(),opposite_.y()-6),QPoint(opposite_.x(),opposite_.y()+6)));
 
+    painter->drawPath(path());
 
    if (option->state & QStyle::State_Selected)
        qt_graphicsItem_highlightSelected(this, painter, option);
@@ -1265,6 +1281,19 @@ QPainterPath GraphicsPolygonItem::shape() const
     return qt_graphicsItem_shapeFromPath(path,pen());
 }
 
+// QPainterPath GraphicsPolygonItem::path() const
+// {
+//     // qDebug() << __LINE__ << pos().x() << pos().y() << zValue();
+//     // qDebug() << __LINE__ << rect() << width() << height();
+//     // qDebug() << __LINE__ << m_points;
+//     QPainterPath path;
+//     path.addPolygon(m_points);
+//     path.closeSubpath();
+//     qDebug() << __LINE__ << mapToScene(path);
+//     // return mapToScene(path);
+//     return path;
+// }
+
 void GraphicsPolygonItem::addPoint(const QPointF &point)
 {
     m_points.append(mapFromScene(point));
@@ -1343,6 +1372,10 @@ void GraphicsPolygonItem::updateCoordinate()
     }
     m_initialPoints = m_points;
 
+    QPainterPath path;
+    path.addPolygon(m_points);
+    path.closeSubpath();
+    setPath(path);
 }
 
 bool GraphicsPolygonItem::loadFromXml(QXmlStreamReader *xml)
@@ -1429,15 +1462,11 @@ void GraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     Q_UNUSED(option);
     Q_UNUSED(widget);
 
-    QColor c = brushColor();
-    QLinearGradient result(boundingRect().topLeft(), boundingRect().topRight());
-    result.setColorAt(0, c.dark(150));
-    result.setColorAt(0.5, c.light(200));
-    result.setColorAt(1, c.dark(150));
-    painter->setBrush(result);
+    painter->setBrush(brush());
 
     painter->setPen(pen());
-    painter->drawPolygon(m_points);
+    // painter->drawPolygon(m_points);
+    painter->drawPath(path());
 
     if (option->state & QStyle::State_Selected)
         qt_graphicsItem_highlightSelected(this, painter, option);

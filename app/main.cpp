@@ -5,6 +5,8 @@
 
 int main(int argc, char *argv[])
 {
+    // turn on the DPI support**
+    QApplication::setAttribute(Qt::AA_EnableHighDpiScaling);
 
     Q_INIT_RESOURCE(app);
     QApplication a(argc, argv);

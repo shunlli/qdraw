@@ -13,6 +13,8 @@
 #include <QMimeData>
 #include <QXmlStreamReader>
 
+#include "context.h"
+
 class ShapeMimeData : public QMimeData
 {
     Q_OBJECT
@@ -32,7 +34,11 @@ public:
         :BaseType(parent)
     {
         m_pen=QPen(Qt::NoPen);
-        m_brush= QBrush(QColor(rand() % 32 * 8, rand() % 32 * 8, rand() % 32 * 8));
+        Context *context = Context::instance(); 
+        m_materailName = context->currentMaterial();
+        auto mats = Materials::instance();
+        QColor color = mats->materialColor(m_materailName);
+        m_brush= QBrush(color);
         m_width = m_height = 0;
     }
     virtual ~AbstractShapeType(){}
@@ -46,6 +52,8 @@ public:
     virtual int handleCount() const { return m_handles.size();}
     virtual bool loadFromXml(QXmlStreamReader * xml ) = 0;
     virtual bool saveToXml( QXmlStreamWriter * xml ) = 0 ;
+    virtual QString materialName(QString name) { return m_materailName; }
+    virtual void setMaterialName(QString name) { m_materailName = name; }
     int collidesWithHandle( const QPointF & point ) const
     {
         const Handles::const_reverse_iterator hend =  m_handles.rend();
@@ -156,6 +164,8 @@ public:
          }
         return pt;
     }
+    virtual QPainterPath path() const {return m_path;}
+    virtual void setPath(QPainterPath path) { m_path = path; }
 
     QColor brushColor() const {return m_brush.color();}
     QBrush brush() const {return m_brush;}
@@ -192,6 +202,9 @@ protected:
     QRectF m_localRect;
     qreal m_width;
     qreal m_height;
+
+    QString m_materailName;
+    QPainterPath m_path;
 };
 
 typedef  AbstractShapeType< QGraphicsItem > AbstractShape;
@@ -230,6 +243,7 @@ public:
     GraphicsRectItem(const QRect & rect , bool isRound = false ,QGraphicsItem * parent = 0 );
     QRectF boundingRect() const;
     QPainterPath shape() const;
+    // virtual QPainterPath path() const;
     void control(int dir, const QPointF & delta);
     void stretch(int handle , double sx , double sy , const QPointF & origin);
     QRectF  rect() const {  return m_localRect;}
@@ -316,6 +330,7 @@ public:
     GraphicsPolygonItem(QGraphicsItem * parent = 0);
     QRectF boundingRect() const ;
     QPainterPath shape() const;
+    // virtual QPainterPath path() const;
     virtual void addPoint( const QPointF & point ) ;
     virtual void endPoint(const QPointF & point );
     void control(int dir, const QPointF & delta);
@@ -325,6 +340,7 @@ public:
     virtual bool saveToXml( QXmlStreamWriter * xml );
     QString displayName() const { return tr("polygon"); }
     QGraphicsItem *duplicate() const;
+    // QPolygonF points() {return m_points;};
 protected:
     void updatehandles();
     void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
