@@ -25,15 +25,12 @@ static PolygonTool polygonTool(polygon);
 static PolygonTool bezierTool(bezier);
 static PolygonTool polylineTool(polyline);
 
-static RotationTool rotationTool;
-
 enum SelectMode
 {
     none,
     netSelect,
     move,
     size,
-    rotate,
     editor,
 };
 
@@ -268,149 +265,6 @@ void SelectTool::mouseReleaseEvent(QGraphicsSceneMouseEvent *event, DrawScene *s
     nDragHandle = Handle_None;
     m_hoverSizer = false;
     opposite_ = QPointF();
-    scene->mouseEvent(event);
-}
-
-RotationTool::RotationTool()
-    :DrawTool(rotation)
-{
-    lastAngle = 0;
-    dashRect = 0;
-}
-
-void RotationTool::mousePressEvent(QGraphicsSceneMouseEvent *event, DrawScene *scene)
-{
-    DrawTool::mousePressEvent(event,scene);
-    if ( event->button() != Qt::LeftButton ) return;
-
-    if (!m_hoverSizer)
-      scene->mouseEvent(event);
-
-    QList<QGraphicsItem *> items = scene->selectedItems();
-    if ( items.count() == 1 ){
-        AbstractShape * item = qgraphicsitem_cast<AbstractShape*>(items.first());
-        if ( item != 0 ){
-            nDragHandle = item->collidesWithHandle(event->scenePos());
-            if ( nDragHandle !=Handle_None)
-            {
-                QPointF origin = item->mapToScene(item->boundingRect().center());
-
-                qreal len_y = c_last.y() - origin.y();
-                qreal len_x = c_last.x() - origin.x();
-
-                qreal angle = atan2(len_y,len_x)*180/PI;
-
-                lastAngle = angle;
-                selectMode = rotate;
-
-                if (dashRect ){
-                    scene->removeItem(dashRect);
-                    delete dashRect;
-                    dashRect = 0;
-                }
-
-                dashRect = new QGraphicsPathItem(item->shape());
-                dashRect->setPen(Qt::DashLine);
-                dashRect->setPos(item->pos());
-                dashRect->setTransformOriginPoint(item->transformOriginPoint());
-                dashRect->setTransform(item->transform());
-                dashRect->setRotation(item->rotation());
-                dashRect->setScale(item->scale());
-                dashRect->setZValue(item->zValue());
-                scene->addItem(dashRect);
-                setCursor(scene,QCursor((QPixmap(":/icons/rotate.png"))));
-            }
-            else{
-                    c_drawShape = selection;
-                    selectTool.mousePressEvent(event,scene);
-                }
-        }
-    }
-}
-
-void RotationTool::mouseMoveEvent(QGraphicsSceneMouseEvent *event, DrawScene *scene)
-{
-    DrawTool::mouseMoveEvent(event,scene);
-    QList<QGraphicsItem *> items = scene->selectedItems();
-    if ( items.count() == 1 ){
-        AbstractShape * item = qgraphicsitem_cast<AbstractShape*>(items.first());
-        if ( item != 0  && nDragHandle !=Handle_None && selectMode == rotate ){
-
-             QPointF origin = item->mapToScene(item->boundingRect().center());
-
-             qreal len_y = c_last.y() - origin.y();
-             qreal len_x = c_last.x() - origin.x();
-             qreal angle = atan2(len_y,len_x)*180/PI;
-
-             angle = item->rotation() + int(angle - lastAngle) ;
-
-             if ( angle > 360 )
-                 angle -= 360;
-             if ( angle < -360 )
-                 angle+=360;
-
-             if ( dashRect ){
-                 //dashRect->setTransform(QTransform::fromTranslate(15,15),true);
-                 //dashRect->setTransform(QTransform().rotate(angle));
-                 //dashRect->setTransform(QTransform::fromTranslate(-15,-15),true);
-                 dashRect->setRotation( angle );
-             }
-
-             setCursor(scene,QCursor((QPixmap(":/icons/rotate.png"))));
-        }
-        else if ( item )
-        {
-            int handle = item->collidesWithHandle(event->scenePos());
-            if ( handle != Handle_None){
-                setCursor(scene,QCursor((QPixmap(":/icons/rotate.png"))));
-                m_hoverSizer = true;
-            }else{
-                setCursor(scene,Qt::ArrowCursor);
-                m_hoverSizer = false;
-            }
-        }
-    }
-    scene->mouseEvent(event);
-}
-
-void RotationTool::mouseReleaseEvent(QGraphicsSceneMouseEvent *event, DrawScene *scene)
-{
-    DrawTool::mouseReleaseEvent(event,scene);
-    if ( event->button() != Qt::LeftButton ) return;
-
-    QList<QGraphicsItem *> items = scene->selectedItems();
-    if ( items.count() == 1 ){
-        AbstractShape * item = qgraphicsitem_cast<AbstractShape*>(items.first());
-        if ( item != 0  && nDragHandle !=Handle_None && selectMode == rotate ){
-
-             QPointF origin = item->mapToScene(item->boundingRect().center());
-             QPointF delta = c_last - origin ;
-             qreal len_y = c_last.y() - origin.y();
-             qreal len_x = c_last.x() - origin.x();
-             qreal angle = atan2(len_y,len_x)*180/PI,oldAngle = item->rotation();
-             angle = item->rotation() + int(angle - lastAngle) ;
-
-             if ( angle > 360 )
-                 angle -= 360;
-             if ( angle < -360 )
-                 angle+=360;
-
-             item->setRotation( angle );
-             emit scene->itemRotate(item , oldAngle);
-             qDebug()<<"rotate:"<<angle<<item->boundingRect();
-        }
-    }
-
-    setCursor(scene,Qt::ArrowCursor);
-    selectMode = none;
-    nDragHandle = Handle_None;
-    lastAngle = 0;
-    m_hoverSizer = false;
-    if (dashRect ){
-        scene->removeItem(dashRect);
-        delete dashRect;
-        dashRect = 0;
-    }
     scene->mouseEvent(event);
 }
 

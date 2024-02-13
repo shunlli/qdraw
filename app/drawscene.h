@@ -17,22 +17,6 @@ class QKeyEvent;
 class QPainter;
 QT_END_NAMESPACE
 
-enum AlignType
-{
-    UP_ALIGN=0,
-    HORZ_ALIGN,
-    VERT_ALIGN,
-    DOWN_ALIGN,
-    LEFT_ALIGN,
-    RIGHT_ALIGN,
-    CENTER_ALIGN,
-    HORZEVEN_ALIGN,
-    VERTEVEN_ALIGN,
-    WIDTH_ALIGN,
-    HEIGHT_ALIGN,
-    ALL_ALIGN
-};
-
 class GridTool
 {
 public:
@@ -55,7 +39,6 @@ public:
     void destroyGroup(QGraphicsItemGroup *group);
 signals:
     void itemMoved( QGraphicsItem * item , const QPointF & oldPosition );
-    void itemRotate(QGraphicsItem * item , const qreal oldAngle );
     void itemAdded(QGraphicsItem * item );
     void itemResize(QGraphicsItem * item , int handle , const QPointF& scale );
     void itemControl(QGraphicsItem * item , int handle , const QPointF & newPos , const QPointF& lastPos_ );

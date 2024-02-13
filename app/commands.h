@@ -64,20 +64,6 @@ private:
     bool bControled;
 };
 
-
-class RotateShapeCommand : public QUndoCommand
-{
-public:
-    RotateShapeCommand(QGraphicsItem *item , const qreal oldAngle ,
-                QUndoCommand * parent = 0);
-    void undo() Q_DECL_OVERRIDE;
-    void redo() Q_DECL_OVERRIDE;
-private:
-    QGraphicsItem *myItem;
-    qreal myOldAngle;
-    qreal newAngle;
-};
-
 class RemoveShapeCommand : public QUndoCommand
 {
 public:

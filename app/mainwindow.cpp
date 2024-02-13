@@ -97,9 +97,6 @@ void MainWindow::createActions()
     bezierAct= new QAction(QIcon(":/icons/bezier.png"),tr("bezier tool"),this);
     bezierAct->setCheckable(true);
 
-    rotateAct = new QAction(QIcon(":/icons/rotate.png"),tr("rotate tool"),this);
-    rotateAct->setCheckable(true);
-
     drawActionGroup = new QActionGroup(this);
     drawActionGroup->addAction(selectAct);
     drawActionGroup->addAction(lineAct);
@@ -109,7 +106,6 @@ void MainWindow::createActions()
     drawActionGroup->addAction(polygonAct);
     drawActionGroup->addAction(polylineAct);
     drawActionGroup->addAction(bezierAct);
-    drawActionGroup->addAction(rotateAct);
     selectAct->setChecked(true);
 
     connect(selectAct,SIGNAL(triggered()),this,SLOT(addShape()));
@@ -120,7 +116,6 @@ void MainWindow::createActions()
     connect(polygonAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(polylineAct,SIGNAL(triggered()),this,SLOT(addShape()));
     connect(bezierAct,SIGNAL(triggered()),this,SLOT(addShape()));
-    connect(rotateAct,SIGNAL(triggered()),this,SLOT(addShape()));
 
     mergeAct = new QAction(QIcon(":/icons/merge.png"),tr("merge"),this);
     mergeAct->setCheckable(true);
@@ -221,7 +216,6 @@ void MainWindow::createMenus()
     shapeTool->addAction(polygonAct);
     // shapeTool->addAction(polylineAct);
     // shapeTool->addAction(bezierAct);
-    // shapeTool->addAction(rotateAct);
     toolMenu->addMenu(shapeTool);
 
     QMenu *booleanMenu = new QMenu("Boolean");
@@ -282,7 +276,6 @@ void MainWindow::createToolbars()
     drawToolBar->addAction(polygonAct);
     // drawToolBar->addAction(polylineAct);
     // drawToolBar->addAction(bezierAct);
-    // drawToolBar->addAction(rotateAct);
 
     booleanToolBar = addToolBar(tr("boolean"));
     booleanToolBar->setIconSize(QSize(24,24));
@@ -480,8 +473,6 @@ DrawView *MainWindow::createGraphicsView()
             this, SLOT(itemAdded(QGraphicsItem*)));
     connect(scene,SIGNAL(itemMoved(QGraphicsItem*,QPointF)),
             this,SLOT(itemMoved(QGraphicsItem*,QPointF)));
-    connect(scene,SIGNAL(itemRotate(QGraphicsItem*,qreal)),
-            this,SLOT(itemRotate(QGraphicsItem*,qreal)));
 
     connect(scene,SIGNAL(itemResize(QGraphicsItem* , int , const QPointF&)),
             this,SLOT(itemResize(QGraphicsItem*,int,QPointF)));
@@ -523,12 +514,10 @@ void MainWindow::addShape()
         DrawTool::c_drawShape = polygon;
     else if ( sender() == bezierAct )
         DrawTool::c_drawShape = bezier ;
-    else if (sender() == rotateAct )
-        DrawTool::c_drawShape = rotation;
     else if (sender() == polylineAct )
         DrawTool::c_drawShape = polyline;
 
-    if ( sender() != selectAct && sender() != rotateAct ){
+    if ( sender() != selectAct ){
         m_view->scene()->clearSelection();
     }
     if ( sender() != selectAct){
@@ -562,7 +551,6 @@ void MainWindow::updateActions()
     roundRectAct->setEnabled(true);
     ellipseAct->setEnabled(true);
     bezierAct->setEnabled(true);
-    rotateAct->setEnabled(true);
     polygonAct->setEnabled(true);
     polylineAct->setEnabled(true);
 
@@ -575,7 +563,6 @@ void MainWindow::updateActions()
     roundRectAct->setChecked(DrawTool::c_drawShape == roundrect);
     ellipseAct->setChecked(DrawTool::c_drawShape == ellipse);
     bezierAct->setChecked(DrawTool::c_drawShape == bezier);
-    rotateAct->setChecked(DrawTool::c_drawShape == rotation);
     polygonAct->setChecked(DrawTool::c_drawShape == polygon);
     polylineAct->setChecked(DrawTool::c_drawShape == polyline );
 
@@ -654,14 +641,6 @@ void MainWindow::itemAdded(QGraphicsItem *item)
             shape->setPath(path);
         }
     }
-}
-
-void MainWindow::itemRotate(QGraphicsItem *item, const qreal oldAngle)
-{
-    m_view->setModified(true);
-
-    QUndoCommand *rotateCommand = new RotateShapeCommand(item , oldAngle);
-    undoStack->push(rotateCommand);
 }
 
 void MainWindow::itemResize(QGraphicsItem *item, int handle, const QPointF& scale)

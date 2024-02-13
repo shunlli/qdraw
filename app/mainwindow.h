@@ -56,7 +56,6 @@ public slots:
     void itemSelected();
     void itemMoved(QGraphicsItem * item , const QPointF & oldPosition );
     void itemAdded(QGraphicsItem * item );
-    void itemRotate(QGraphicsItem * item , const qreal oldAngle );
     void itemResize(QGraphicsItem * item , int handle , const QPointF& scale );
     void itemControl(QGraphicsItem * item , int handle , const QPointF & newPos , const QPointF& lastPos_ );
 

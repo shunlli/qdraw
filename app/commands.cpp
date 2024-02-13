@@ -127,30 +127,6 @@ QString createCommandString(QGraphicsItem *item, const QPointF &pos)
         .arg(pos.x()).arg(pos.y());
 }
 
-
-RotateShapeCommand::RotateShapeCommand(QGraphicsItem *item, const qreal oldAngle, QUndoCommand *parent)
-    :QUndoCommand(parent)
-{
-    myItem = item;
-    myOldAngle = oldAngle;
-    newAngle = item->rotation();
-
-}
-
-void RotateShapeCommand::undo()
-{
-    myItem->setRotation(myOldAngle);
-    myItem->scene()->update();
-    setText(QObject::tr("Undo Rotate %1").arg(newAngle));
-}
-
-void RotateShapeCommand::redo()
-{
-    myItem->setRotation(newAngle);
-    myItem->update();
-    setText(QObject::tr("Redo Rotate %1").arg(newAngle));
-}
-
 ResizeShapeCommand::ResizeShapeCommand(QGraphicsItem *item,
                                        int handle,
                                        const QPointF& scale,
