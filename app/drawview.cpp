@@ -278,8 +278,6 @@ void DrawView::loadCanvas( QXmlStreamReader *xml)
             item = new GraphicsBezier(false);
         else if ( xml->name() == tr("line"))
             item = new GraphicsLineItem();
-        else if ( xml->name() == tr("group"))
-            item =qgraphicsitem_cast<AbstractShape*>(loadGroupFromXML(xml));
         else
             xml->skipCurrentElement();
 
@@ -290,47 +288,4 @@ void DrawView::loadCanvas( QXmlStreamReader *xml)
     }
 }
 
-GraphicsItemGroup *DrawView::loadGroupFromXML(QXmlStreamReader *xml)
-{
-    QList<QGraphicsItem*> items;
-    qreal angle = xml->attributes().value(tr("rotate")).toDouble();
-    while (xml->readNextStartElement()) {
-        AbstractShape * item = NULL;
-        if (xml->name() == tr("rect")){
-            item = new GraphicsRectItem(QRect(0,0,1,1));
-        }else if (xml->name() == tr("roundrect")){
-            item = new GraphicsRectItem(QRect(0,0,1,1),true);
-        }else if (xml->name() == tr("ellipse"))
-            item = new GraphicsEllipseItem(QRect(0,0,1,1));
-        else if (xml->name()==tr("polygon"))
-            item = new GraphicsPolygonItem();
-        else if ( xml->name()==tr("bezier"))
-            item = new GraphicsBezier();
-        else if ( xml->name() == tr("polyline"))
-            item = new GraphicsBezier(false);
-        else if ( xml->name() == tr("line"))
-            item = new GraphicsLineItem();
-        else if ( xml->name() == tr("group"))
-            item =qgraphicsitem_cast<AbstractShape*>(loadGroupFromXML(xml));
-        else
-            xml->skipCurrentElement();
-        if (item && item->loadFromXml(xml)){
-            scene()->addItem(item);
-            items.append(item);
-        }else if ( item )
-            delete item;
-    }
-
-    if ( items.count() > 0 ){
-        DrawScene * s = dynamic_cast<DrawScene*>(scene());
-        GraphicsItemGroup * group = s->createGroup(items,false);
-        if (group){
-            group->setRotation(angle);
-            group->updateCoordinate();
-            //qDebug()<<"angle:" <<angle;
-        }
-        return group;
-    }
-    return 0;
-}
 

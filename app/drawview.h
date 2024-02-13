@@ -45,7 +45,6 @@ private:
     bool maybeSave();
     void setCurrentFile(const QString &fileName);
     QString strippedName(const QString &fullFileName);
-    GraphicsItemGroup * loadGroupFromXML( QXmlStreamReader * xml );
 
     QString curFile;
     bool isUntitled;

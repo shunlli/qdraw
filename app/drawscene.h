@@ -43,8 +43,6 @@ protected:
     QSize m_sizeGridSpace;
 };
 
-class GraphicsItemGroup;
-
 class DrawScene : public QGraphicsScene
 {
     Q_OBJECT
@@ -53,9 +51,7 @@ public:
     ~DrawScene();
     void setView(QGraphicsView * view ) { m_view = view ; }
     QGraphicsView * view() { return m_view; }
-    void align(AlignType alignType );
     void mouseEvent(QGraphicsSceneMouseEvent *mouseEvent );
-    GraphicsItemGroup * createGroup(const QList<QGraphicsItem *> &items ,bool isAdd = true);
     void destroyGroup(QGraphicsItemGroup *group);
 signals:
     void itemMoved( QGraphicsItem * item , const QPointF & oldPosition );

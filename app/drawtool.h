@@ -62,7 +62,6 @@ public:
     QPointF initialPositions;
     QPointF opposite_;
     QGraphicsPathItem * dashRect;
-    GraphicsItemGroup * selLayer;
 };
 
 class  RotationTool : public DrawTool

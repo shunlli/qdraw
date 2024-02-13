@@ -91,33 +91,6 @@ private:
     QGraphicsScene *myGraphicsScene;
 };
 
-class GroupShapeCommand : public QUndoCommand
-{
-public:
-    explicit GroupShapeCommand( QGraphicsItemGroup * group, QGraphicsScene *graphicsScene,
-                           QUndoCommand *parent = 0);
-    void undo() Q_DECL_OVERRIDE;
-    void redo() Q_DECL_OVERRIDE;
-private:
-    QList<QGraphicsItem *> items;
-    QGraphicsItemGroup * myGroup;
-    QGraphicsScene *myGraphicsScene;
-    bool b_undo;
-};
-
-class UnGroupShapeCommand : public QUndoCommand
-{
-public:
-    explicit UnGroupShapeCommand( QGraphicsItemGroup * group, QGraphicsScene *graphicsScene,
-                             QUndoCommand *parent = 0);
-    void undo() Q_DECL_OVERRIDE;
-    void redo() Q_DECL_OVERRIDE;
-private:
-    QList<QGraphicsItem *> items;
-    QGraphicsItemGroup * myGroup;
-    QGraphicsScene *myGraphicsScene;
-};
-
 class AddShapeCommand : public QUndoCommand
 {
 public:

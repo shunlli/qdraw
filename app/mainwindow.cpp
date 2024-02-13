@@ -79,43 +79,6 @@ void MainWindow::createActions()
     exitAct->setStatusTip(tr("Exit the application"));
     connect(exitAct, SIGNAL(triggered()), qApp, SLOT(closeAllWindows()));
 
-    // create align actions
-    rightAct   = new QAction(QIcon(":/icons/align_right.png"),tr("right"),this);
-    leftAct    = new QAction(QIcon(":/icons/align_left.png"),tr("left"),this);
-    vCenterAct = new QAction(QIcon(":/icons/align_vcenter.png"),tr("vcenter"),this);
-    hCenterAct = new QAction(QIcon(":/icons/align_hcenter.png"),tr("hcenter"),this);
-    upAct      = new QAction(QIcon(":/icons/align_top.png"),tr("top"),this);
-    downAct    = new QAction(QIcon(":/icons/align_bottom.png"),tr("bottom"),this);
-    horzAct    = new QAction(QIcon(":/icons/align_horzeven.png"),tr("Horizontal"),this);
-    vertAct    = new QAction(QIcon(":/icons/align_verteven.png"),tr("vertical"),this);
-    heightAct  = new QAction(QIcon(":/icons/align_height.png"),tr("height"),this);
-    widthAct   = new QAction(QIcon(":/icons/align_width.png"),tr("width"),this);
-    allAct     = new QAction(QIcon(":/icons/align_all.png"),tr("width and height"),this);
-
-    bringToFrontAct = new QAction(QIcon(":/icons/bringtofront.png"),tr("bring to front"),this);
-    sendToBackAct   = new QAction(QIcon(":/icons/sendtoback.png"),tr("send to back"),this);
-    groupAct        = new QAction(QIcon(":/icons/group.png"),tr("group"),this);
-    unGroupAct        = new QAction(QIcon(":/icons/ungroup.png"),tr("ungroup"),this);
-
-    connect(bringToFrontAct,SIGNAL(triggered()),this,SLOT(on_actionBringToFront_triggered()));
-    connect(sendToBackAct,SIGNAL(triggered()),this,SLOT(on_actionSendToBack_triggered()));
-    connect(rightAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(leftAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(vCenterAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(hCenterAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(upAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(downAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-
-    connect(horzAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(vertAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(heightAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(widthAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-    connect(allAct,SIGNAL(triggered()),this,SLOT(on_aglin_triggered()));
-
-    connect(groupAct,SIGNAL(triggered()),this,SLOT(on_group_triggered()));
-    connect(unGroupAct,SIGNAL(triggered()),this,SLOT(on_unGroup_triggered()));
-
-
     //create draw actions
     selectAct = new QAction(QIcon(":/icons/arrow.png"),tr("select tool"),this);
     selectAct->setCheckable(true);
@@ -262,26 +225,12 @@ void MainWindow::createMenus()
     toolMenu->addMenu(shapeTool);
 
     QMenu *booleanMenu = new QMenu("Boolean");
-    booleanMenu->addAction(mergeAct);
+    // booleanMenu->addAction(mergeAct);
     booleanMenu->addAction(replacesOldAct);
     booleanMenu->addAction(replacesNewAct);
-    booleanMenu->addAction(overlapsOldAct);
-    booleanMenu->addAction(overlapsNewAct);
+    // booleanMenu->addAction(overlapsOldAct);
+    // booleanMenu->addAction(overlapsNewAct);
     toolMenu->addMenu(booleanMenu);
-
-    // QMenu *alignMenu = new QMenu("Align");
-    // alignMenu->addAction(rightAct);
-    // alignMenu->addAction(leftAct);
-    // alignMenu->addAction(hCenterAct);
-    // alignMenu->addAction(vCenterAct);
-    // alignMenu->addAction(upAct);
-    // alignMenu->addAction(downAct);
-    // alignMenu->addAction(horzAct);
-    // alignMenu->addAction(vertAct);
-    // alignMenu->addAction(heightAct);
-    // alignMenu->addAction(widthAct);
-    // alignMenu->addAction(allAct);
-    // toolMenu->addMenu(alignMenu);
 
     QMenu *helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
@@ -337,32 +286,11 @@ void MainWindow::createToolbars()
 
     booleanToolBar = addToolBar(tr("boolean"));
     booleanToolBar->setIconSize(QSize(24,24));
-    booleanToolBar->addAction(mergeAct);
+    // booleanToolBar->addAction(mergeAct);
     booleanToolBar->addAction(replacesOldAct);
     booleanToolBar->addAction(replacesNewAct);
-    booleanToolBar->addAction(overlapsOldAct);
-    booleanToolBar->addAction(overlapsNewAct);
-
-    // create align toolbar
-    alignToolBar = addToolBar(tr("align"));
-    alignToolBar->setIconSize(QSize(24,24));
-    // alignToolBar->addAction(upAct);
-    // alignToolBar->addAction(downAct);
-    // alignToolBar->addAction(rightAct);
-    // alignToolBar->addAction(leftAct);
-    // alignToolBar->addAction(vCenterAct);
-    // alignToolBar->addAction(hCenterAct);
-
-    // alignToolBar->addAction(horzAct);
-    // alignToolBar->addAction(vertAct);
-    // alignToolBar->addAction(heightAct);
-    // alignToolBar->addAction(widthAct);
-    // alignToolBar->addAction(allAct);
-
-    alignToolBar->addAction(bringToFrontAct);
-    alignToolBar->addAction(sendToBackAct);
-    // alignToolBar->addAction(groupAct);
-    // alignToolBar->addAction(unGroupAct);
+    // booleanToolBar->addAction(overlapsOldAct);
+    // booleanToolBar->addAction(overlapsNewAct);
 }
 
 void MainWindow::setCurrentFile(const QString &fileName)
@@ -611,16 +539,16 @@ void MainWindow::addShape()
 void MainWindow::setBooleanOperation()
 {
     Context *context = Context::instance();
-    if (sender() == mergeAct)
-        context->setBooleanOperation(MergeOper);
+    // if (sender() == mergeAct)
+    //     context->setBooleanOperation(MergeOper);
     if (sender() == replacesOldAct)
         context->setBooleanOperation(NewReplacesOldOper);
     if (sender() == replacesNewAct)
         context->setBooleanOperation(OldReplacesNewOper);
-    if (sender() == overlapsOldAct)
-        context->setBooleanOperation(NewOverlpasOldOper);
-    if (sender() == overlapsNewAct)
-        context->setBooleanOperation(OldOverlpasNewOper);
+    // if (sender() == overlapsOldAct)
+    //     context->setBooleanOperation(NewOverlpasOldOper);
+    // if (sender() == overlapsNewAct)
+    //     context->setBooleanOperation(OldOverlpasNewOper);
 }
 
 void MainWindow::updateActions()
@@ -651,34 +579,14 @@ void MainWindow::updateActions()
     polygonAct->setChecked(DrawTool::c_drawShape == polygon);
     polylineAct->setChecked(DrawTool::c_drawShape == polyline );
 
-    mergeAct->setChecked(context->boolOperation() == MergeOper);
+    // mergeAct->setChecked(context->boolOperation() == MergeOper);
     replacesOldAct->setChecked(context->boolOperation() == NewReplacesOldOper);
     replacesNewAct->setChecked(context->boolOperation() == OldReplacesNewOper);
-    overlapsOldAct->setChecked(context->boolOperation() == NewOverlpasOldOper);
-    overlapsNewAct->setChecked(context->boolOperation() == OldOverlpasNewOper);
+    // overlapsOldAct->setChecked(context->boolOperation() == NewOverlpasOldOper);
+    // overlapsNewAct->setChecked(context->boolOperation() == OldOverlpasNewOper);
 
     undoAct->setEnabled(undoStack->canUndo());
     redoAct->setEnabled(undoStack->canRedo());
-
-    bringToFrontAct->setEnabled(scene->selectedItems().count() > 0);
-    sendToBackAct->setEnabled(scene->selectedItems().count() > 0);
-    groupAct->setEnabled( scene->selectedItems().count() > 0);
-    unGroupAct->setEnabled(scene->selectedItems().count() > 0 &&
-                              dynamic_cast<GraphicsItemGroup*>( scene->selectedItems().first()));
-
-    leftAct->setEnabled(scene->selectedItems().count() > 1);
-    rightAct->setEnabled(scene->selectedItems().count() > 1);
-    leftAct->setEnabled(scene->selectedItems().count() > 1);
-    vCenterAct->setEnabled(scene->selectedItems().count() > 1);
-    hCenterAct->setEnabled(scene->selectedItems().count() > 1);
-    upAct->setEnabled(scene->selectedItems().count() > 1);
-    downAct->setEnabled(scene->selectedItems().count() > 1);
-
-    heightAct->setEnabled(scene->selectedItems().count() > 1);
-    widthAct->setEnabled(scene->selectedItems().count() > 1);
-    allAct->setEnabled(scene->selectedItems().count()>1);
-    horzAct->setEnabled(scene->selectedItems().count() > 2);
-    vertAct->setEnabled(scene->selectedItems().count() > 2);
 
     copyAct->setEnabled(scene->selectedItems().count() > 0);
     cutAct->setEnabled(scene->selectedItems().count() > 0);
@@ -787,76 +695,6 @@ void MainWindow::deleteItem()
 
 }
 
-void MainWindow::on_actionBringToFront_triggered()
-{
-    QGraphicsScene * scene = m_view->scene();
-
-    if (scene->selectedItems().isEmpty())
-        return;
-    m_view->setModified(true);
-
-    QGraphicsItem *selectedItem = scene->selectedItems().first();
-
-    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-    qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
-        if (item->zValue() >= zValue && item->type() == GraphicsItem::Type)
-            zValue = item->zValue() + 0.1;
-    }
-    selectedItem->setZValue(zValue);
-
-
-}
-void MainWindow::on_actionSendToBack_triggered()
-{
-    QGraphicsScene * scene = m_view->scene();
-
-    if (scene->selectedItems().isEmpty())
-        return;
-
-    m_view->setModified(true);
-
-    QGraphicsItem *selectedItem = scene->selectedItems().first();
-    QList<QGraphicsItem *> overlapItems = selectedItem->collidingItems();
-
-    qreal zValue = 0;
-    foreach (QGraphicsItem *item, overlapItems) {
-        if (item->zValue() <= zValue && item->type() == GraphicsItem::Type)
-            zValue = item->zValue() - 0.1;
-    }
-    selectedItem->setZValue(zValue);
-}
-
-void MainWindow::on_aglin_triggered()
-{
-    DrawScene * scene =dynamic_cast<DrawScene*>(m_view->scene());
-
-    m_view->setModified(true);
-
-    if ( sender() == rightAct ){
-        scene->align(RIGHT_ALIGN);
-    }else if ( sender() == leftAct){
-        scene->align(LEFT_ALIGN);
-    }else if ( sender() == upAct ){
-        scene->align(UP_ALIGN);
-    }else if ( sender() == downAct ){
-        scene->align(DOWN_ALIGN);
-    }else if ( sender() == vCenterAct ){
-        scene->align(VERT_ALIGN);
-    }else if ( sender() == hCenterAct){
-        scene->align(HORZ_ALIGN);
-    }else if ( sender() == heightAct )
-        scene->align(HEIGHT_ALIGN);
-    else if ( sender()==widthAct )
-        scene->align(WIDTH_ALIGN);
-    else if ( sender() == horzAct )
-        scene->align(HORZEVEN_ALIGN);
-    else if ( sender() == vertAct )
-        scene->align(VERTEVEN_ALIGN);
-    else if ( sender () == allAct )
-        scene->align(ALL_ALIGN);
-}
-
 void MainWindow::zoomIn()
 {
     m_view->zoomIn();
@@ -865,31 +703,6 @@ void MainWindow::zoomIn()
 void MainWindow::zoomOut()
 {
     m_view->zoomOut();
-}
-
-void MainWindow::on_group_triggered()
-{
-    DrawScene * scene = dynamic_cast<DrawScene*>(m_view->scene());
-
-    //QGraphicsItemGroup
-    QList<QGraphicsItem *> selectedItems = scene->selectedItems();
-    // Create a new group at that level
-    if ( selectedItems.count() < 1) return;
-    GraphicsItemGroup *group = scene->createGroup(selectedItems);
-    QUndoCommand *groupCommand = new GroupShapeCommand(group,scene);
-    undoStack->push(groupCommand);
-}
-
-void MainWindow::on_unGroup_triggered()
-{
-    QGraphicsScene * scene = m_view->scene();
-
-    QGraphicsItem *selectedItem = scene->selectedItems().first();
-    GraphicsItemGroup * group = dynamic_cast<GraphicsItemGroup*>(selectedItem);
-    if ( group ){
-        QUndoCommand *unGroupCommand = new UnGroupShapeCommand(group,scene);
-        undoStack->push(unGroupCommand);
-    }
 }
 
 struct GmshPoint {

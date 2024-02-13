@@ -60,13 +60,8 @@ public slots:
     void itemResize(QGraphicsItem * item , int handle , const QPointF& scale );
     void itemControl(QGraphicsItem * item , int handle , const QPointF & newPos , const QPointF& lastPos_ );
 
-    void on_actionBringToFront_triggered();
-    void on_actionSendToBack_triggered();
-    void on_aglin_triggered();
     void zoomIn();
     void zoomOut();
-    void on_group_triggered();
-    void on_unGroup_triggered();
     void on_func_test_triggered();
     void on_copy();
     void on_paste();
@@ -92,21 +87,6 @@ private:
     QTimer      m_timer;
     // edit toolbar;
     QToolBar * editToolBar;
-    // align toolbar
-    QToolBar * alignToolBar;
-    QAction  * rightAct;
-    QAction  * leftAct;
-    QAction  * vCenterAct;
-    QAction  * hCenterAct;
-    QAction  * upAct;
-    QAction  * downAct;
-    QAction  * horzAct;
-    QAction  * vertAct;
-    QAction  * heightAct;
-    QAction  * widthAct;
-    QAction  * allAct;
-    QAction  * bringToFrontAct;
-    QAction  * sendToBackAct;
 
     // file
     QAction *newAct;
@@ -114,9 +94,6 @@ private:
     QAction *saveAct;
     QAction *saveAsAct;
     QAction *exitAct;
-
-    QAction  * groupAct;
-    QAction  * unGroupAct;
 
     // edit action
     QAction  * deleteAct;

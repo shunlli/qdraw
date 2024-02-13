@@ -92,7 +92,6 @@ SelectTool::SelectTool()
     :DrawTool(selection)
 {
     dashRect = 0;
-    selLayer = 0;
     opposite_ = QPointF();
 }
 
@@ -145,12 +144,6 @@ void SelectTool::mousePressEvent(QGraphicsSceneMouseEvent *event, DrawScene *sce
                 view->setDragMode(QGraphicsView::ScrollHandDrag);
             }
         }
-#if 0
-        if ( selLayer ){
-            scene->destroyGroup(selLayer);
-            selLayer = 0;
-        }
-#endif
     }
 
     if ( selectMode == move && items.count() == 1 ){
@@ -265,12 +258,6 @@ void SelectTool::mouseReleaseEvent(QGraphicsSceneMouseEvent *event, DrawScene *s
             QGraphicsView * view = scene->view();
             view->setDragMode(QGraphicsView::NoDrag);
         }
-#if 0
-        if ( scene->selectedItems().count() > 1 ){
-            selLayer = scene->createGroup(scene->selectedItems());
-            selLayer->setSelected(true);
-        }
-#endif
     }
     if (dashRect ){
         scene->removeItem(dashRect);
