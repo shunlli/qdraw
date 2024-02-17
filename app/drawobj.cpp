@@ -217,27 +217,8 @@ bool GraphicsItem::writeBaseAttributes(QXmlStreamWriter *xml)
 QVariant GraphicsItem::itemChange(QGraphicsItem::GraphicsItemChange change, const QVariant &value)
 {
     if ( change == QGraphicsItem::ItemSelectedHasChanged ) {
-        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(parentItem());
-        if (!g)
-            setState(value.toBool() ? SelectionHandleActive : SelectionHandleOff);
-        else{
-            setSelected(false);
-            return QVariant::fromValue<bool>(false);
-        }
+        setState(value.toBool() ? SelectionHandleActive : SelectionHandleOff);
     }
-    /*
-    else if (change == ItemPositionChange && scene()) {
-        // value is the new position.
-        QPointF newPos = value.toPointF();
-        QRectF rect = scene()->sceneRect();
-        if (!rect.contains(newPos)) {
-            // Keep the item inside the scene rect.
-            newPos.setX(qMin(rect.right()-boundingRect().width()/2, qMax(newPos.x(), rect.left()+boundingRect().width()/2)));
-            newPos.setY(qMin(rect.bottom()-boundingRect().height()/2, qMax(newPos.y(), rect.top()+boundingRect().height()/2)));
-            return newPos;
-        }
-    }
-    */
     return QGraphicsItem::itemChange(change, value);
 }
 
@@ -292,16 +273,6 @@ QPainterPath GraphicsRectItem::shape() const
         path.addRect(rect());
     return path;
 }
-
-// QPainterPath GraphicsRectItem::path() const
-// {
-//     // qDebug() << __LINE__ << pos().x() << pos().y() << zValue();
-//     // qDebug() << __LINE__ << rect() << width() << height();
-//     auto path = shape();
-//     // qDebug() << __LINE__ << mapToScene(path);
-//     // return mapToScene(path);
-//     return path;
-// }
 
 void GraphicsRectItem::control(int dir, const QPointF & delta)
 {
@@ -505,39 +476,22 @@ void GraphicsRectItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *
        ry = 0;
    else
        ry = m_height * m_fRatioY + 0.5;
-//    if ( m_isRound )
-//        painter->drawRoundedRect(rect(),rx,ry);
-//    else
-//        painter->drawRect(rect().toRect());
 
-//    painter->setPen(Qt::blue);
-//    painter->drawLine(QLine(QPoint(opposite_.x()-6,opposite_.y()),QPoint(opposite_.x()+6,opposite_.y())));
-//    painter->drawLine(QLine(QPoint(opposite_.x(),opposite_.y()-6),QPoint(opposite_.x(),opposite_.y()+6)));
-
-    painter->drawPath(path());
+    auto tmppath = path();
+    if (tmppath.elementCount() == 0)
+    {
+        if ( m_isRound )
+            painter->drawRoundedRect(rect(),rx,ry);
+        else
+            painter->drawRect(rect().toRect());
+    }
+    else
+    {
+        painter->drawPath(path());
+    }
 
    if (option->state & QStyle::State_Selected)
        qt_graphicsItem_highlightSelected(this, painter, option);
-/*
-
-   QPolygonF pts;
-   pts<<m_localRect.topLeft()<<m_localRect.topRight()<<m_localRect.bottomRight()<<m_localRect.bottomLeft();
-   pts = mapToScene(pts);
-   QRectF bound = RecalcBounds(pts);
-
-
-   qDebug()<<m_localRect<<bound;
-    pts.clear();
-   pts<<bound.topLeft()<<bound.topRight()<<bound.bottomRight()<<bound.bottomLeft();
-   pts = mapFromScene(pts);
-   if ( scene() ){
-   painter->save();
-   painter->setPen(Qt::blue);
-   painter->setBrush(Qt::NoBrush);
-   painter->drawPolygon(pts);
-   painter->restore();
-   }
-*/
 }
 
 GraphicsLineItem::GraphicsLineItem(QGraphicsItem *parent)
@@ -996,19 +950,6 @@ QPainterPath GraphicsPolygonItem::shape() const
     return qt_graphicsItem_shapeFromPath(path,pen());
 }
 
-// QPainterPath GraphicsPolygonItem::path() const
-// {
-//     // qDebug() << __LINE__ << pos().x() << pos().y() << zValue();
-//     // qDebug() << __LINE__ << rect() << width() << height();
-//     // qDebug() << __LINE__ << m_points;
-//     QPainterPath path;
-//     path.addPolygon(m_points);
-//     path.closeSubpath();
-//     qDebug() << __LINE__ << mapToScene(path);
-//     // return mapToScene(path);
-//     return path;
-// }
-
 void GraphicsPolygonItem::addPoint(const QPointF &point)
 {
     m_points.append(mapFromScene(point));
@@ -1180,8 +1121,11 @@ void GraphicsPolygonItem::paint(QPainter *painter, const QStyleOptionGraphicsIte
     painter->setBrush(brush());
 
     painter->setPen(pen());
-    // painter->drawPolygon(m_points);
-    painter->drawPath(path());
+    auto tmppath = path();
+    if (tmppath.elementCount() == 0)
+        painter->drawPolygon(m_points);
+    else
+        painter->drawPath(path());
 
     if (option->state & QStyle::State_Selected)
         qt_graphicsItem_highlightSelected(this, painter, option);

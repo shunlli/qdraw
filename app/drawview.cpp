@@ -11,7 +11,6 @@ DrawView::DrawView(QGraphicsScene *scene)
 {
     m_hruler = new QtRuleBar(Qt::Horizontal,this,this);
     m_vruler = new QtRuleBar(Qt::Vertical,this,this);
-    box = new QtCornerBox(this);
     setViewport(new QWidget);
 
     setAttribute(Qt::WA_DeleteOnClose);
@@ -131,32 +130,13 @@ bool DrawView::saveFile(const QString &fileName)
 
     foreach (QGraphicsItem *item , scene()->items()) {
         AbstractShape * ab = qgraphicsitem_cast<AbstractShape*>(item);
-        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(item->parentItem());
-        if ( ab &&!qgraphicsitem_cast<SizeHandleRect*>(ab) && !g ){
+        if ( ab &&!qgraphicsitem_cast<SizeHandleRect*>(ab)){
             ab->saveToXml(&xml);
         }
     }
     xml.writeEndElement();
     xml.writeEndDocument();
-#if 0
-    QSvgGenerator generator;
-    generator.setFileName(fileName);
-    generator.setSize(QSize(800, 600));
-    generator.setTitle(tr("SVG Generator Example Drawing"));
-    generator.setDescription(tr("An SVG drawing created by the SVG Generator "
-                                "Example provided with Qt."));
-//![configure SVG generator]
-//![begin painting]
-    QPainter painter;
-    painter.begin(&generator);
-//![begin painting]
-//!
-    scene()->clearSelection();
-    scene()->render(&painter);
-//![end painting]
-    painter.end();
-//![end painting]
-#endif
+
     setCurrentFile(fileName);
     return true;
 }
@@ -194,8 +174,6 @@ void DrawView::resizeEvent(QResizeEvent *event)
     m_vruler->resize(RULER_SIZE,this->size().height() - RULER_SIZE - 1);
     m_vruler->move(0,RULER_SIZE);
 
-    box->resize(RULER_SIZE,RULER_SIZE);
-    box->move(0,0);
     updateRuler();
 }
 

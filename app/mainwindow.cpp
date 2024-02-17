@@ -400,8 +400,7 @@ bool MainWindow::saveFile(const QString &fileName)
 
     for (QGraphicsItem *item : m_view->scene()->items()) {
         AbstractShape * ab = qgraphicsitem_cast<AbstractShape*>(item);
-        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(item->parentItem());
-        if ( ab &&!qgraphicsitem_cast<SizeHandleRect*>(ab) && !g ){
+        if ( ab &&!qgraphicsitem_cast<SizeHandleRect*>(ab)){
             ab->saveToXml(&xml);
         }
     }

@@ -21,12 +21,14 @@ MoveShapeCommand::MoveShapeCommand(QGraphicsItem * item, const QPointF &delta, Q
 
 void MoveShapeCommand::undo()
 {
-    if ( myItem )
+    if ( myItem ) {
         myItem->moveBy(-myDelta.x(),-myDelta.y());
-    else if( myItems.count() > 0 ){
+        myItem->scene()->update();
+    } else if( myItems.count() > 0 ){
         foreach (QGraphicsItem *item, myItems) {
            item->moveBy(-myDelta.x(),-myDelta.y());
         }
+        myGraphicsScene->update();
     }
     setText(QObject::tr("Undo Move %1,%2")
         .arg(-myDelta.x()).arg(-myDelta.y()));
@@ -65,9 +67,7 @@ RemoveShapeCommand::~RemoveShapeCommand()
 void RemoveShapeCommand::undo()
 {
     foreach (QGraphicsItem *item, items) {
-        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(item->parentItem());
-        if ( !g )
-            myGraphicsScene->addItem(item);
+        myGraphicsScene->addItem(item);
     }
     myGraphicsScene->update();
     setText(QObject::tr("Undo Delete %1").arg(items.count()));
@@ -76,11 +76,10 @@ void RemoveShapeCommand::undo()
 void RemoveShapeCommand::redo()
 {
     foreach (QGraphicsItem *item, items) {
-        QGraphicsItemGroup *g = dynamic_cast<QGraphicsItemGroup*>(item->parentItem());
-        if ( !g )
-            myGraphicsScene->removeItem(item);
+        myGraphicsScene->removeItem(item);
     }
-        setText(QObject::tr("Redo Delete %1").arg(items.count()));
+    myGraphicsScene->update();
+    setText(QObject::tr("Redo Delete %1").arg(items.count()));
 }
 
 AddShapeCommand::AddShapeCommand(QGraphicsItem *item,

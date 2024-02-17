@@ -12,15 +12,6 @@ QT_END_NAMESPACE
 
 #define RULER_SIZE    16
 
-class QtCornerBox : public QWidget
-{
-    Q_OBJECT
-public:
-    explicit QtCornerBox(QWidget * parent );
-protected:
-    void paintEvent(QPaintEvent *);
-};
-
 class QtRuleBar : public QWidget
 {
     Q_OBJECT

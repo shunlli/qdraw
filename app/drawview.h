@@ -39,7 +39,6 @@ protected:
     void updateRuler();
     QtRuleBar *m_hruler;
     QtRuleBar *m_vruler;
-    QtCornerBox * box;
 
 private:
     bool maybeSave();

@@ -79,17 +79,6 @@ void DrawScene::mouseEvent(QGraphicsSceneMouseEvent *mouseEvent)
     }
 }
 
-void DrawScene::destroyGroup(QGraphicsItemGroup *group)
-{
-    group->setSelected(false);
-    foreach (QGraphicsItem *item, group->childItems()){
-        item->setSelected(true);
-        group->removeFromGroup(item);
-    }
-    removeItem(group);
-    delete group;
-}
-
 void DrawScene::drawBackground(QPainter *painter, const QRectF &rect)
 {
     QGraphicsScene::drawBackground(painter,rect);

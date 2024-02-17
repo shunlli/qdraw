@@ -234,22 +234,3 @@ void QtRuleBar::drawPos(QPainter *painter)
        }
    }
 }
-
-QtCornerBox::QtCornerBox(QWidget *parent)
-    :QWidget(parent)
-{
-}
-
-void QtCornerBox::paintEvent(QPaintEvent *e)
-{
-    Q_UNUSED(e);
-    QPainter painter(this);
-    painter.fillRect(rect(),QColor(0xFF, 0xFF, 0xFF));
-
-    painter.setPen(Qt::DashLine);
-    painter.drawLine(rect().center().x(),rect().top(),rect().center().x(),rect().bottom());
-    painter.drawLine(rect().left(),rect().center().y(),rect().right(),rect().center().y());
-
-    painter.drawLine(rect().topRight(),rect().bottomRight());
-    painter.drawLine(rect().bottomLeft(),rect().bottomRight());
-}

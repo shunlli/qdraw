@@ -64,17 +64,6 @@ public:
     QGraphicsPathItem * dashRect;
 };
 
-class  RotationTool : public DrawTool
-{
-public:
-    RotationTool();
-    virtual void mousePressEvent(QGraphicsSceneMouseEvent * event , DrawScene * scene ) ;
-    virtual void mouseMoveEvent(QGraphicsSceneMouseEvent * event , DrawScene * scene ) ;
-    virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent * event , DrawScene * scene );
-    qreal lastAngle;
-    QGraphicsPathItem * dashRect;
-};
-
 class RectTool : public DrawTool
 {
 public:

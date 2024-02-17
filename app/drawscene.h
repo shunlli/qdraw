@@ -36,7 +36,6 @@ public:
     void setView(QGraphicsView * view ) { m_view = view ; }
     QGraphicsView * view() { return m_view; }
     void mouseEvent(QGraphicsSceneMouseEvent *mouseEvent );
-    void destroyGroup(QGraphicsItemGroup *group);
 signals:
     void itemMoved( QGraphicsItem * item , const QPointF & oldPosition );
     void itemAdded(QGraphicsItem * item );
