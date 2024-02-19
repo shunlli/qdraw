@@ -4,9 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xml svg
-
-greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+QT       += core gui xml widgets
 
 Debug:CONFIG += console
 
@@ -16,7 +14,7 @@ TEMPLATE = app
 
 
 SOURCES += main.cpp\
-        mainwindow.cpp \
+    mainwindow.cpp \
     drawobj.cpp \
     drawscene.cpp \
     drawtool.cpp \
@@ -26,6 +24,7 @@ SOURCES += main.cpp\
     commands.cpp \
     materials.cpp \
     context.cpp \
+    commandwidget.cpp \
     document.cpp
 
 HEADERS  += mainwindow.h \
@@ -38,6 +37,7 @@ HEADERS  += mainwindow.h \
     commands.h \
     materials.h \
     context.h \
+    commandwidget.h \
     document.h
 
 RESOURCES += \

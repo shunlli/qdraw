@@ -1,10 +1,7 @@
 #include "drawview.h"
 #include "drawscene.h"
-#include <QSvgGenerator>
 #include <QXmlStreamWriter>
 #include <QXmlStreamReader>
-
-//http://www.w3.org/TR/SVG/Overview.html
 
 DrawView::DrawView(QGraphicsScene *scene)
     :QGraphicsView(scene)

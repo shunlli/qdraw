@@ -10,6 +10,7 @@
 #include "commands.h"
 #include "materials.h"
 #include "context.h"
+#include "commandwidget.h"
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +19,11 @@ MainWindow::MainWindow(QWidget *parent)
     undoView = new QUndoView(undoStack);
     undoView->setWindowTitle(tr("Command List"));
     undoView->setAttribute(Qt::WA_QuitOnClose, false);
+
+    QDockWidget * cmdDock = new QDockWidget(this);
+    addDockWidget(Qt::BottomDockWidgetArea, cmdDock);
+    auto cmdWdiget = new CommandWidget(this);
+    cmdDock->setWidget(cmdWdiget);
 
     // QDockWidget *dock = new QDockWidget(this);
     // addDockWidget(Qt::RightDockWidgetArea, dock);
