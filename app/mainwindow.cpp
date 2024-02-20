@@ -652,8 +652,8 @@ void MainWindow::itemResize(QGraphicsItem *item, int handle, const QPointF& scal
 {
     m_view->setModified(true);
 
-    QUndoCommand *resizeCommand = new ResizeShapeCommand(item ,handle, scale );
-    undoStack->push(resizeCommand);
+    // QUndoCommand *resizeCommand = new ResizeShapeCommand(item ,handle, scale );
+    // undoStack->push(resizeCommand);
 }
 
 void MainWindow::itemControl(QGraphicsItem *item, int handle, const QPointF & newPos ,const QPointF &lastPos_)

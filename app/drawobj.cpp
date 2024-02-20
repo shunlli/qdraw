@@ -121,11 +121,11 @@ GraphicsItem::GraphicsItem(QGraphicsItem *parent)
     setGraphicsEffect(effect);
    */
     // handles
-    m_handles.reserve(Left);
-    for (int i = LeftTop; i <= Left; ++i) {
-        SizeHandleRect *shr = new SizeHandleRect(this,i);
-        m_handles.push_back(shr);
-    }
+    // m_handles.reserve(Left);
+    // for (int i = LeftTop; i <= Left; ++i) {
+        // SizeHandleRect *shr = new SizeHandleRect(this,i);
+    //     m_handles.push_back(shr);
+    // }
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -150,40 +150,40 @@ QPixmap GraphicsItem::image() {
 
 void GraphicsItem::updatehandles()
 {
-    const QRectF &geom = this->boundingRect();
+    // const QRectF &geom = this->boundingRect();
 
-    const Handles::iterator hend =  m_handles.end();
-    for (Handles::iterator it = m_handles.begin(); it != hend; ++it) {
-        SizeHandleRect *hndl = *it;;
-        switch (hndl->dir()) {
-        case LeftTop:
-            hndl->move(geom.x() , geom.y() );
-            break;
-        case Top:
-            hndl->move(geom.x() + geom.width() / 2 , geom.y() );
-            break;
-        case RightTop:
-            hndl->move(geom.x() + geom.width() , geom.y() );
-            break;
-        case Right:
-            hndl->move(geom.x() + geom.width() , geom.y() + geom.height() / 2 );
-            break;
-        case RightBottom:
-            hndl->move(geom.x() + geom.width() , geom.y() + geom.height() );
-            break;
-        case Bottom:
-            hndl->move(geom.x() + geom.width() / 2 , geom.y() + geom.height() );
-            break;
-        case LeftBottom:
-            hndl->move(geom.x(), geom.y() + geom.height());
-            break;
-        case Left:
-            hndl->move(geom.x(), geom.y() + geom.height() / 2);
-            break;
-        default:
-            break;
-        }
-    }
+    // const Handles::iterator hend =  m_handles.end();
+    // for (Handles::iterator it = m_handles.begin(); it != hend; ++it) {
+    //     SizeHandleRect *hndl = *it;;
+    //     switch (hndl->dir()) {
+    //     case LeftTop:
+    //         hndl->move(geom.x() , geom.y() );
+    //         break;
+    //     case Top:
+    //         hndl->move(geom.x() + geom.width() / 2 , geom.y() );
+    //         break;
+    //     case RightTop:
+    //         hndl->move(geom.x() + geom.width() , geom.y() );
+    //         break;
+    //     case Right:
+    //         hndl->move(geom.x() + geom.width() , geom.y() + geom.height() / 2 );
+    //         break;
+    //     case RightBottom:
+    //         hndl->move(geom.x() + geom.width() , geom.y() + geom.height() );
+    //         break;
+    //     case Bottom:
+    //         hndl->move(geom.x() + geom.width() / 2 , geom.y() + geom.height() );
+    //         break;
+    //     case LeftBottom:
+    //         hndl->move(geom.x(), geom.y() + geom.height());
+    //         break;
+    //     case Left:
+    //         hndl->move(geom.x(), geom.y() + geom.height() / 2);
+    //         break;
+    //     default:
+    //         break;
+    //     }
+    // }
 }
 
 void GraphicsItem::contextMenuEvent(QGraphicsSceneContextMenuEvent *event)
@@ -238,10 +238,10 @@ GraphicsRectItem::GraphicsRectItem(const QRect & rect , bool isRound , QGraphics
     m_localRect = rect;
     m_originPoint = QPointF(0,0);
     if( m_isRound ){
-        SizeHandleRect *shr = new SizeHandleRect(this, 9 , true);
-        m_handles.push_back(shr);
-        shr = new SizeHandleRect(this, 10 , true);
-        m_handles.push_back(shr);
+        // SizeHandleRect *shr = new SizeHandleRect(this, 9 , true);
+        // m_handles.push_back(shr);
+        // shr = new SizeHandleRect(this, 10 , true);
+        // m_handles.push_back(shr);
         //shr = new SizeHandleRect(this, 11 , true);
         //m_handles.push_back(shr);
     }
@@ -321,35 +321,35 @@ void GraphicsRectItem::control(int dir, const QPointF & delta)
     updatehandles();
 }
 
-void GraphicsRectItem::stretch(int handle , double sx, double sy, const QPointF & origin)
-{
-    QTransform trans  ;
-    switch (handle) {
-    case Right:
-    case Left:
-        sy = 1;
-        break;
-    case Top:
-    case Bottom:
-        sx = 1;
-        break;
-    default:
-        break;
-    }
+// void GraphicsRectItem::stretch(int handle , double sx, double sy, const QPointF & origin)
+// {
+//     QTransform trans  ;
+//     switch (handle) {
+//     case Right:
+//     case Left:
+//         sy = 1;
+//         break;
+//     case Top:
+//     case Bottom:
+//         sx = 1;
+//         break;
+//     default:
+//         break;
+//     }
 
-    opposite_ = origin;
+//     opposite_ = origin;
 
-    trans.translate(origin.x(),origin.y());
-    trans.scale(sx,sy);
-    trans.translate(-origin.x(),-origin.y());
+//     trans.translate(origin.x(),origin.y());
+//     trans.scale(sx,sy);
+//     trans.translate(-origin.x(),-origin.y());
 
-    prepareGeometryChange();
-    m_localRect = trans.mapRect(m_initialRect);
-    m_width = m_localRect.width();
-    m_height = m_localRect.height();
-    updatehandles();
+//     prepareGeometryChange();
+//     m_localRect = trans.mapRect(m_initialRect);
+//     m_width = m_localRect.width();
+//     m_height = m_localRect.height();
+//     updatehandles();
 
-}
+// }
 
 void GraphicsRectItem::updateCoordinate()
 {
@@ -369,7 +369,7 @@ void GraphicsRectItem::updateCoordinate()
         setTransformOriginPoint(m_localRect.center());
         moveBy(-delta.x(),-delta.y());
         setTransform(transform().translate(-delta.x(),-delta.y()));
-        opposite_ = QPointF(0,0);
+//        opposite_ = QPointF(0,0);
         updatehandles();
     }
     m_initialRect = m_localRect;
@@ -540,9 +540,9 @@ void GraphicsLineItem::addPoint(const QPointF &point)
 {
     m_points.append(mapFromScene(point));
     int dir = m_points.count();
-    SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, dir == 1 ? false : true);
-    shr->setState(SelectionHandleActive);
-    m_handles.push_back(shr);
+    // SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, dir == 1 ? false : true);
+    // shr->setState(SelectionHandleActive);
+    // m_handles.push_back(shr);
 }
 
 
@@ -560,52 +560,52 @@ void GraphicsLineItem::endPoint(const QPointF &point)
     m_initialPoints = m_points;
 }
 
-QPointF GraphicsLineItem::opposite(int handle)
-{
-    QPointF pt;
-    switch (handle) {
-    case Right:
-    case Left:
-    case Top:
-    case LeftTop:
-    case RightTop:
-        pt = m_handles[1]->pos();
-        break;
-    case RightBottom:
-    case LeftBottom:
-    case Bottom:
-        pt = m_handles[0]->pos();
-        break;
-     }
-    return pt;
-}
+// QPointF GraphicsLineItem::opposite(int handle)
+// {
+//     QPointF pt;
+//     switch (handle) {
+//     case Right:
+//     case Left:
+//     case Top:
+//     case LeftTop:
+//     case RightTop:
+//         pt = m_handles[1]->pos();
+//         break;
+//     case RightBottom:
+//     case LeftBottom:
+//     case Bottom:
+//         pt = m_handles[0]->pos();
+//         break;
+//      }
+//     return pt;
+// }
 
-void GraphicsLineItem::stretch(int handle, double sx, double sy, const QPointF &origin)
-{
-    QTransform trans;
-    switch (handle) {
-    case Right:
-    case Left:
-        sy = 1;
-        break;
-    case Top:
-    case Bottom:
-        sx = 1;
-        break;
-    default:
-        break;
-    }
-    trans.translate(origin.x(),origin.y());
-    trans.scale(sx,sy);
-    trans.translate(-origin.x(),-origin.y());
+// void GraphicsLineItem::stretch(int handle, double sx, double sy, const QPointF &origin)
+// {
+//     QTransform trans;
+//     switch (handle) {
+//     case Right:
+//     case Left:
+//         sy = 1;
+//         break;
+//     case Top:
+//     case Bottom:
+//         sx = 1;
+//         break;
+//     default:
+//         break;
+//     }
+//     trans.translate(origin.x(),origin.y());
+//     trans.scale(sx,sy);
+//     trans.translate(-origin.x(),-origin.y());
 
-    prepareGeometryChange();
-    m_points = trans.map(m_initialPoints);
-    m_localRect = m_points.boundingRect();
-    m_width = m_localRect.width();
-    m_height = m_localRect.height();
-    updatehandles();
-}
+//     prepareGeometryChange();
+//     m_points = trans.map(m_initialPoints);
+//     m_localRect = m_points.boundingRect();
+//     m_width = m_localRect.width();
+//     m_height = m_localRect.height();
+//     updatehandles();
+// }
 
 bool GraphicsLineItem::loadFromXml(QXmlStreamReader *xml)
 {
@@ -616,8 +616,8 @@ bool GraphicsLineItem::loadFromXml(QXmlStreamReader *xml)
             qreal y = xml->attributes().value("y").toDouble();
             m_points.append(QPointF(x,y));
             int dir = m_points.count();
-            SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, dir == 1 ? false : true);
-            m_handles.push_back(shr);
+            // SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, dir == 1 ? false : true);
+            // m_handles.push_back(shr);
             xml->skipCurrentElement();
         }else
             xml->skipCurrentElement();
@@ -687,9 +687,9 @@ QGraphicsItem *GraphicsBezier::duplicate() const
     item->m_height = height();
     item->m_points = m_points;
     item->m_isBezier = m_isBezier;
-    for ( int i = 0 ; i < m_points.size() ; ++i ){
-        item->m_handles.push_back(new SizeHandleRect(item,Left+i+1,true));
-    }
+    // for ( int i = 0 ; i < m_points.size() ; ++i ){
+    //     item->m_handles.push_back(new SizeHandleRect(item,Left+i+1,true));
+    // }
     item->setPos(pos().x(),pos().y());
     item->setPen(pen());
     item->setBrush(brush());
@@ -765,10 +765,10 @@ GraphicsEllipseItem::GraphicsEllipseItem(const QRect & rect ,QGraphicsItem *pare
 {
     m_startAngle = 40;
     m_spanAngle  = 400;
-    SizeHandleRect *shr = new SizeHandleRect(this, 9 , true);
-    m_handles.push_back(shr);
-    shr = new SizeHandleRect(this, 10 , true);
-    m_handles.push_back(shr);
+    // SizeHandleRect *shr = new SizeHandleRect(this, 9 , true);
+    // m_handles.push_back(shr);
+    // shr = new SizeHandleRect(this, 10 , true);
+    // m_handles.push_back(shr);
     updatehandles();
 }
 
@@ -953,10 +953,10 @@ QPainterPath GraphicsPolygonItem::shape() const
 void GraphicsPolygonItem::addPoint(const QPointF &point)
 {
     m_points.append(mapFromScene(point));
-    int dir = m_points.count();
-    SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, true);
-    shr->setState(SelectionHandleActive);
-    m_handles.push_back(shr);
+    // int dir = m_points.count();
+    // SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, true);
+    // shr->setState(SelectionHandleActive);
+    // m_handles.push_back(shr);
 }
 
 void GraphicsPolygonItem::control(int dir, const QPointF &delta)
@@ -972,32 +972,32 @@ void GraphicsPolygonItem::control(int dir, const QPointF &delta)
     updatehandles();
 }
 
-void GraphicsPolygonItem::stretch(int handle, double sx, double sy, const QPointF &origin)
-{
-    QTransform trans;
-    switch (handle) {
-    case Right:
-    case Left:
-        sy = 1;
-        break;
-    case Top:
-    case Bottom:
-        sx = 1;
-        break;
-    default:
-        break;
-    }
-    trans.translate(origin.x(),origin.y());
-    trans.scale(sx,sy);
-    trans.translate(-origin.x(),-origin.y());
+// void GraphicsPolygonItem::stretch(int handle, double sx, double sy, const QPointF &origin)
+// {
+//     QTransform trans;
+//     switch (handle) {
+//     case Right:
+//     case Left:
+//         sy = 1;
+//         break;
+//     case Top:
+//     case Bottom:
+//         sx = 1;
+//         break;
+//     default:
+//         break;
+//     }
+//     trans.translate(origin.x(),origin.y());
+//     trans.scale(sx,sy);
+//     trans.translate(-origin.x(),-origin.y());
 
-    prepareGeometryChange();
-    m_points = trans.map(m_initialPoints);
-    m_localRect = m_points.boundingRect();
-    m_width = m_localRect.width();
-    m_height = m_localRect.height();
-    updatehandles();
-}
+//     prepareGeometryChange();
+//     m_points = trans.map(m_initialPoints);
+//     m_localRect = m_points.boundingRect();
+//     m_width = m_localRect.width();
+//     m_height = m_localRect.height();
+//     updatehandles();
+// }
 
 void GraphicsPolygonItem::updateCoordinate()
 {
@@ -1043,8 +1043,8 @@ bool GraphicsPolygonItem::loadFromXml(QXmlStreamReader *xml)
             qreal y = xml->attributes().value("y").toDouble();
             m_points.append(QPointF(x,y));
             int dir = m_points.count();
-            SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, true);
-            m_handles.push_back(shr);
+            // SizeHandleRect *shr = new SizeHandleRect(this, dir+Left, true);
+            // m_handles.push_back(shr);
             xml->skipCurrentElement();
         }else
             xml->skipCurrentElement();
@@ -1088,9 +1088,9 @@ QGraphicsItem *GraphicsPolygonItem::duplicate() const
     item->m_height = height();
     item->m_points = m_points;
 
-    for ( int i = 0 ; i < m_points.size() ; ++i ){
-        item->m_handles.push_back(new SizeHandleRect(item,Left+i+1,true));
-    }
+    // for ( int i = 0 ; i < m_points.size() ; ++i ){
+    //     item->m_handles.push_back(new SizeHandleRect(item,Left+i+1,true));
+    // }
 
     item->setPos(pos().x(),pos().y());
     item->setPen(pen());

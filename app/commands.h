@@ -20,26 +20,26 @@ private:
     bool bMoved;
 };
 
-class ResizeShapeCommand : public QUndoCommand
-{
-public:
-    enum { Id = 1234, };
-    ResizeShapeCommand(QGraphicsItem * item ,
-                       int handle,
-                       const QPointF& scale,
-                       QUndoCommand *parent = 0 );
-    void undo() Q_DECL_OVERRIDE;
-    void redo() Q_DECL_OVERRIDE;
+// class ResizeShapeCommand : public QUndoCommand
+// {
+// public:
+//     enum { Id = 1234, };
+//     ResizeShapeCommand(QGraphicsItem * item ,
+//                        int handle,
+//                        const QPointF& scale,
+//                        QUndoCommand *parent = 0 );
+//     void undo() Q_DECL_OVERRIDE;
+//     void redo() Q_DECL_OVERRIDE;
 
-    bool mergeWith(const QUndoCommand *command) Q_DECL_OVERRIDE;
-    int id() const Q_DECL_OVERRIDE { return Id; }
-private:
-    QGraphicsItem  *myItem;
-    int handle_;
-    int opposite_;
-    QPointF scale_;
-    bool bResized;
-};
+//     bool mergeWith(const QUndoCommand *command) Q_DECL_OVERRIDE;
+//     int id() const Q_DECL_OVERRIDE { return Id; }
+// private:
+//     QGraphicsItem  *myItem;
+//     int handle_;
+//     int opposite_;
+//     QPointF scale_;
+//     bool bResized;
+// };
 
 class ControlShapeCommand : public QUndoCommand
 {

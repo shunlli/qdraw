@@ -44,7 +44,7 @@ public:
     virtual ~AbstractShapeType(){}
     virtual QString displayName () const { return QString("AbstractType");}
     virtual void control(int dir, const QPointF & delta ){ Q_UNUSED(dir);Q_UNUSED(delta);}
-    virtual void stretch( int  , double  , double  , const QPointF & ) {}
+    // virtual void stretch( int  , double  , double  , const QPointF & ) {}
     virtual QRectF  rect() const { return m_localRect; }
     virtual void updateCoordinate () {}
     virtual void move( const QPointF & point ){Q_UNUSED(point);}
@@ -134,36 +134,36 @@ public:
         }
         return dir;
     }
-    virtual QPointF opposite( int handle ) {
-        QPointF pt;
-        switch (handle) {
-        case Right:
-            pt = m_handles.at(Left-1)->pos();
-            break;
-        case RightTop:
-            pt = m_handles[LeftBottom-1]->pos();
-            break;
-        case RightBottom:
-            pt = m_handles[LeftTop-1]->pos();
-            break;
-        case LeftBottom:
-            pt = m_handles[RightTop-1]->pos();
-            break;
-        case Bottom:
-            pt = m_handles[Top-1]->pos();
-            break;
-        case LeftTop:
-            pt = m_handles[RightBottom-1]->pos();
-            break;
-        case Left:
-            pt = m_handles[Right-1]->pos();
-            break;
-        case Top:
-            pt = m_handles[Bottom-1]->pos();
-            break;
-         }
-        return pt;
-    }
+    // virtual QPointF opposite( int handle ) {
+    //     QPointF pt;
+    //     switch (handle) {
+    //     case Right:
+    //         pt = m_handles.at(Left-1)->pos();
+    //         break;
+    //     case RightTop:
+    //         pt = m_handles[LeftBottom-1]->pos();
+    //         break;
+    //     case RightBottom:
+    //         pt = m_handles[LeftTop-1]->pos();
+    //         break;
+    //     case LeftBottom:
+    //         pt = m_handles[RightTop-1]->pos();
+    //         break;
+    //     case Bottom:
+    //         pt = m_handles[Top-1]->pos();
+    //         break;
+    //     case LeftTop:
+    //         pt = m_handles[RightBottom-1]->pos();
+    //         break;
+    //     case Left:
+    //         pt = m_handles[Right-1]->pos();
+    //         break;
+    //     case Top:
+    //         pt = m_handles[Bottom-1]->pos();
+    //         break;
+    //      }
+    //     return pt;
+    // }
     virtual QPainterPath path() const {return m_path;}
     virtual void setPath(QPainterPath path) { m_path = path; }
 
@@ -245,7 +245,7 @@ public:
     QPainterPath shape() const;
     // virtual QPainterPath path() const;
     void control(int dir, const QPointF & delta);
-    void stretch(int handle , double sx , double sy , const QPointF & origin);
+    // void stretch(int handle , double sx , double sy , const QPointF & origin);
     QRectF  rect() const {  return m_localRect;}
     void updateCoordinate();
     void move( const QPointF & point );
@@ -262,7 +262,7 @@ protected:
     qreal m_fRatioY;
     qreal m_fRatioX;
     QRectF m_initialRect;
-    QPointF opposite_;
+    // QPointF opposite_;
     QPointF m_originPoint;
 };
 
@@ -294,7 +294,7 @@ public:
     virtual void addPoint( const QPointF & point ) ;
     virtual void endPoint(const QPointF & point );
     void control(int dir, const QPointF & delta);
-    void stretch( int handle , double sx , double sy , const QPointF & origin );
+    // void stretch( int handle , double sx , double sy , const QPointF & origin );
     void updateCoordinate ();
     virtual bool loadFromXml(QXmlStreamReader * xml );
     virtual bool saveToXml( QXmlStreamWriter * xml );
@@ -316,10 +316,10 @@ public:
     QGraphicsItem *duplicate() const;
     void addPoint( const QPointF & point ) ;
     void endPoint(const QPointF & point );
-    virtual QPointF opposite( int handle ) ;
+    // virtual QPointF opposite( int handle ) ;
     void updateCoordinate() { m_initialPoints = m_points;}
-    int handleCount() const { return m_handles.size() + Left;}
-    void stretch( int handle , double sx , double sy , const QPointF & origin );
+   int handleCount() const { return m_handles.size() + Left;}
+//    void stretch( int handle , double sx , double sy , const QPointF & origin );
     virtual bool loadFromXml(QXmlStreamReader * xml );
     virtual bool saveToXml( QXmlStreamWriter * xml );
     QString displayName() const { return tr("line"); }
